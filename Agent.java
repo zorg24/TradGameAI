@@ -91,10 +91,21 @@ public class Agent {
         state.getMoves(moves);
         Move bestMove = moves.get(0);
         for (Move m : moves) {
-            if (m.forwardDistance() > bestMove.forwardDistance())
+            if (forwardDistance(m.from, m.to) > forwardDistance(bestMove.from, bestMove.to))
                 bestMove = m;
         }
         return bestMove;
+    }
+
+    private int forwardDistance(int from, int to) {
+        int fromRow = from / 9;
+        int toRow = to / 9;
+        int fromCol = from % 9;
+        int toCol = to % 9;
+        int mult = 1;
+        if (current_player.equals(Players.player2))
+            mult = -1;
+        return ((toRow + toCol) - (fromRow + fromCol))*mult;
     }
 
     // Sends a msg to stdout and verifies that the next message to come in is it
@@ -170,6 +181,8 @@ public class Agent {
                     System.err.println("Unable to apply move " + m);
                     System.err.flush();
                 }
+            } else if (response.equals("NEXTMOVE")) {
+                state.applyMove(nextMove());
             } else {
                 System.err.println("Unexpected message '" + response + "'");
                 System.err.flush();
