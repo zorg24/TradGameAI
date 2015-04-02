@@ -103,7 +103,7 @@ public class Agent {
         int fromCol = from % 9;
         int toCol = to % 9;
         int mult = 1;
-        if (current_player.equals(Players.player2))
+        if (state.getCurrentPlayer() == 2)
             mult = -1;
         return ((toRow + toCol) - (fromRow + fromCol))*mult;
     }

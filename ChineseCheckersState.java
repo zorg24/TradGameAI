@@ -173,6 +173,10 @@ public class ChineseCheckersState {
     private int[] board;
     private int currentPlayer = 0;
 
+    public int getCurrentPlayer() {
+        return currentPlayer;
+    }
+
     private void getMovesSingleStep(ArrayList<Move> moves, int from) {
         int row = from / 9;
         int col = from % 9;
