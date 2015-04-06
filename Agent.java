@@ -87,6 +87,7 @@ public class Agent {
 
     private Move nextMove() {
         // Somehow select your next move
+
         ArrayList<Move> moves = new ArrayList<Move>();
         state.getMoves(moves);
         Move bestMove = moves.get(0);
@@ -95,6 +96,34 @@ public class Agent {
                 bestMove = m;
         }
         return bestMove;
+    }
+
+    private int minimax(ChineseCheckersState state, int depth) {
+        if (depth == 0 || state.gameOver()) {
+            state.heuristic();
+        }
+        ArrayList<Move> mov = new ArrayList<Move>();
+        if (current_player.equals(my_player)) {
+            int best = Integer.MIN_VALUE;
+            state.getMoves(mov);
+            for (Move m : mov) {
+                state.applyMove(m);
+                int val = minimax(state, depth - 1);
+                state.undoMove(m);
+                best = Math.max(val, best);
+            }
+            return best;
+        } else {
+            int best = Integer.MAX_VALUE;
+            state.getMoves(mov);
+            for (Move m : mov) {
+                state.applyMove(m);
+                int val = minimax(state, depth - 1);
+                state.undoMove(m);
+                best = Math.min(val, best);
+            }
+            return best;
+        }
     }
 
     // Sends a msg to stdout and verifies that the next message to come in is it
