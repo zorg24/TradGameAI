@@ -18,8 +18,4 @@ public class Move {
 
         return from == m.from && to == m.to;
     }
-
-    public int forwardDistance() {
-        return ((to / 9) - (from / 9)) + ((to % 9) - (from % 9));
-    }
 }
