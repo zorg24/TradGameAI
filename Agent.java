@@ -97,18 +97,27 @@ public class Agent {
         return bestMove;
     }
 
-    private int minimax(ChineseCheckersState state, int depth) {
+    private Move minimax(ChineseCheckersState state, int depth) {
+        Move m = null;
+        for (int d = 0; d < depth; d++) {
+            minimaxHelper(state, d, m);
+        }
+        return m;
+    }
+
+    private int minimaxHelper(ChineseCheckersState state, int depth, Move move) {
         if (depth == 0 || state.gameOver()) {
-            state.heuristic();
+            return state.heuristic();
         }
         ArrayList<Move> mov = new ArrayList<Move>();
         if (current_player.equals(my_player)) {
             int best = Integer.MIN_VALUE;
             state.getMoves(mov);
             for (Move m : mov) {
-                state.applyMove(m);
-                int val = minimax(state, depth - 1);
-                state.undoMove(m);
+                move = m;
+                state.applyMove(move);
+                int val = minimaxHelper(state, depth - 1, move);
+                state.undoMove(move);
                 best = Math.max(val, best);
             }
             return best;
@@ -116,9 +125,10 @@ public class Agent {
             int best = Integer.MAX_VALUE;
             state.getMoves(mov);
             for (Move m : mov) {
-                state.applyMove(m);
-                int val = minimax(state, depth - 1);
-                state.undoMove(m);
+                move = m;
+                state.applyMove(move);
+                int val = minimaxHelper(state, depth - 1, move);
+                state.undoMove(move);
                 best = Math.min(val, best);
             }
             return best;
