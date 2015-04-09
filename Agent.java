@@ -101,25 +101,24 @@ public class Agent {
 //        }
 //        return bestMove;
         Move m = new Move(0,0);
-//        Alarm alarm = new Alarm(10);
-//        alarm.run();
-        boolean player = state.getCurrentPlayer() == 1;
-//        for (int d = 0; d < 3; d++) {
-            minimax(state, 3, state.getCurrentPlayer(), m);
-//        }
+        Alarm timer = new Alarm(10);
+        timer.start();
+        for (int d = 1; !timer.isDone(); d++) {
+            minimax(state, d, state.getCurrentPlayer(), m, timer);
+        }
         return m;
     }
 
-    private int minimax(ChineseCheckersState state, int depth, int playerNum, Move best_move) {
+    private int minimax(ChineseCheckersState state, int depth, int playerNum, Move best_move, Alarm timer) {
         if (state.getCurrentPlayer() == playerNum) {
-            return max(state, depth, best_move);
+            return max(state, depth, best_move, timer);
         } else {
-            return min(state, depth, best_move);
+            return min(state, depth, best_move, timer);
         }
     }
 
-    private int max(ChineseCheckersState state, int depth, Move best_move) {
-        if (depth == 0 || state.gameOver() ) {
+    private int max(ChineseCheckersState state, int depth, Move best_move, Alarm timer) {
+        if (depth == 0 || state.gameOver() || timer.isDone()) {
             return state.eval();
         }
         int best = Integer.MIN_VALUE;
@@ -128,7 +127,7 @@ public class Agent {
         int val = 0;
         for (Move m : mov) {
             state.applyMove(m);
-            val = min(state, depth - 1, junkMove);
+            val = min(state, depth - 1, junkMove, timer);
             state.undoMove(m);
             if (val > best) {
                 best = val;
@@ -138,8 +137,8 @@ public class Agent {
         return best;
     }
 
-    private int min(ChineseCheckersState state, int depth, Move best_move) {
-        if (depth == 0 || state.gameOver() ) {
+    private int min(ChineseCheckersState state, int depth, Move best_move, Alarm timer) {
+        if (depth == 0 || state.gameOver() || timer.isDone()) {
             return state.eval();
         }
         int best = Integer.MAX_VALUE;
@@ -148,7 +147,7 @@ public class Agent {
         int val = 0;
         for (Move m : mov) {
             state.applyMove(m);
-            val = max(state, depth - 1, junkMove);
+            val = max(state, depth - 1, best_move, timer);
             state.undoMove(m);
             best = Math.min(val, best);
         }
