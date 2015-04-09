@@ -92,69 +92,78 @@ public class Agent {
 
     private Move nextMove() {
         // Somehow select your next move
-        ArrayList<Move> moves = new ArrayList<Move>();
-        state.getMoves(moves);
-        Move bestMove = moves.get(0);
-        for (Move m : moves) {
-            if (forwardDistance(m.from, m.to) > forwardDistance(bestMove.from, bestMove.to))
-                bestMove = m;
+//        ArrayList<Move> moves = new ArrayList<Move>();
+//        state.getMoves(moves);
+//        Move bestMove = moves.get(0);
+//        for (Move m : moves) {
+//            if (forwardDistance(m.from, m.to) > forwardDistance(bestMove.from, bestMove.to))
+//                bestMove = m;
+//        }
+//        return bestMove;
+        Move m = new Move(0,0);
+//        Alarm alarm = new Alarm(10);
+//        alarm.run();
+        for (int d = 0; d < 3; d++) {
+            minimax(state, d, true, m);
         }
-        return bestMove;
+        return m;
     }
 
-    private void minimax(ChineseCheckersState state, int depth) {
-//        Move m = null;
-        Alarm alarm = new Alarm(10);
-        for (int d = 0; d < depth; d++) {
-            alarm.run();
-            minimaxHelper(state, d, d, alarm);
-        }
-    }
-
-    private int minimaxHelper(ChineseCheckersState state, int depth, int startDepth, Alarm alarm) {
-        if (depth == 0 || state.gameOver() || alarm.isDone()) {
-            return state.heuristic();
-        }
-        ArrayList<Move> mov = new ArrayList<Move>();
-        if (current_player.equals(my_player)) {
-            int best = Integer.MIN_VALUE;
-            state.getMoves(mov);
-            for (Move m : mov) {
-                if (depth == startDepth) {
-                    move_ = m;
-                }
-                state.applyMove(move_);
-                int val = minimaxHelper(state, depth - 1, startDepth, alarm);
-                state.undoMove(move_);
-                best = Math.max(val, best);
-            }
-            return best;
+    private int minimax(ChineseCheckersState state, int depth, boolean myTurn, Move best_move) {
+        if (myTurn) {
+            return max(state, depth, myTurn, best_move);
         } else {
-            int best = Integer.MAX_VALUE;
-            state.getMoves(mov);
-            for (Move m : mov) {
-                if (depth == startDepth) {
-                    move_ = m;
-                }
-                state.applyMove(move_);
-                int val = minimaxHelper(state, depth - 1, startDepth, alarm);
-                state.undoMove(move_);
-                best = Math.min(val, best);
-            }
-            return best;
+            return min(state, depth, myTurn, best_move);
         }
     }
 
-    private int forwardDistance(int from, int to) {
-        int fromRow = from / 9;
-        int toRow = to / 9;
-        int fromCol = from % 9;
-        int toCol = to % 9;
-        int mult = 1;
-        if (state.getCurrentPlayer() == 2)
-            mult = -1;
-        return ((toRow + toCol) - (fromRow + fromCol))*mult;
+    private int max(ChineseCheckersState state, int depth, boolean myTurn, Move best_move) {
+        if (depth == 0 || state.gameOver() ) {
+            return state.eval(myTurn);
+        }
+        int best = Integer.MIN_VALUE;
+        ArrayList<Move> mov = new ArrayList<Move>();
+        state.getMoves(mov);
+        int val = 0;
+        for (Move m : mov) {
+            state.applyMove(m);
+            val = min(state, depth - 1, !myTurn, best_move);
+            state.undoMove(m);
+            if (val > best) {
+                best = val;
+                best_move.set(m);
+            }
+        }
+        return best;
     }
+
+    private int min(ChineseCheckersState state, int depth, boolean myTurn, Move best_move) {
+        if (depth == 0 || state.gameOver() ) {
+            return state.eval(myTurn);
+        }
+        int best = Integer.MAX_VALUE;
+        ArrayList<Move> mov = new ArrayList<Move>();
+        state.getMoves(mov);
+        int val = 0;
+        for (Move m : mov) {
+            state.applyMove(m);
+            val = max(state, depth - 1, !myTurn, junkMove);
+            state.undoMove(m);
+            best = Math.min(val, best);
+        }
+        return best;
+    }
+
+//    private int forwardDistance(int from, int to) {
+//        int fromRow = from / 9;
+//        int toRow = to / 9;
+//        int fromCol = from % 9;
+//        int toCol = to % 9;
+//        int mult = 1;
+//        if (state.getCurrentPlayer() == 2)
+//            mult = -1;
+//        return ((toRow + toCol) - (fromRow + fromCol))*mult;
+//    }
 
     // Sends a msg to stdout and verifies that the next message to come in is it
     // echoed back. This is how the server validates moves
@@ -264,7 +273,7 @@ public class Agent {
 
     private enum Players {player1, player2}
 
-    private Move move_;
+    private final Move junkMove = new Move(0, 0);
     private Players current_player;
     private Players my_player;
     private String name;

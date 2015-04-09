@@ -18,4 +18,9 @@ public class Move {
 
         return from == m.from && to == m.to;
     }
+
+    public void set(Move m) {
+        from = m.from;
+        to = m.to;
+    }
 }

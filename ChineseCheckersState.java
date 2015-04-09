@@ -172,35 +172,36 @@ public class ChineseCheckersState {
 
     int distance = 0;
 
-    public int heuristic() {
+    public int eval(boolean myTurn) {
         int p1d = 0;
         int p2d = 0;
 
         for (int i = 0; i < board.length; i++) {
-            if (board[i] == 0) {
-                continue;
-            } else if (board[i] == 1) {
-                p1d += forwardDistance(i, 80);
-            } else {
-                p2d += forwardDistance(i, 0);
+            if (board[i] != 0) {
+                int dist = i / 9 + i % 9;
+                if (board[i] == 1) {
+                    p1d += 16 - dist;
+                } else {
+                    p2d += dist;
+                }
             }
         }
-        if (currentPlayer == 1) {
+        if (myTurn) {
             return p1d - p2d;
         }
         return p2d - p1d;
     }
 
-    private int forwardDistance(int from, int to) {
-        int fromRow = from / 9;
-        int toRow = to / 9;
-        int fromCol = from % 9;
-        int toCol = to % 9;
-        int mult = 1;
-        if (currentPlayer == 2)
-            mult = -1;
-        return ((toRow + toCol) - (fromRow + fromCol))*mult;
-    }
+//    private int forwardDistance(int from, int to, boolean isMe) {
+//        int fromRow = from / 9;
+//        int toRow = to / 9;
+//        int fromCol = from % 9;
+//        int toCol = to % 9;
+//        int mult = 1;
+//        if (currentPlayer == 2)
+//            mult = -1;
+//        return ((toRow + toCol) - (fromRow + fromCol))*mult;
+//    }
 
     private int[] board;
     private int currentPlayer = 0;
