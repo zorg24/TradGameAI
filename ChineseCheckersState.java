@@ -187,9 +187,9 @@ public class ChineseCheckersState {
             }
         }
         if (myTurn) {
-            return p1d - p2d;
+            return p2d - p1d;
         }
-        return p2d - p1d;
+        return p1d - p2d;
     }
 
 //    private int forwardDistance(int from, int to, boolean isMe) {

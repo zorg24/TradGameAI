@@ -103,9 +103,10 @@ public class Agent {
         Move m = new Move(0,0);
 //        Alarm alarm = new Alarm(10);
 //        alarm.run();
-        for (int d = 0; d < 3; d++) {
-            minimax(state, d, true, m);
-        }
+        boolean player = state.getCurrentPlayer() == 1;
+//        for (int d = 0; d < 3; d++) {
+            minimax(state, 3, player, m);
+//        }
         return m;
     }
 
@@ -127,7 +128,7 @@ public class Agent {
         int val = 0;
         for (Move m : mov) {
             state.applyMove(m);
-            val = min(state, depth - 1, !myTurn, best_move);
+            val = min(state, depth - 1, !myTurn, junkMove);
             state.undoMove(m);
             if (val > best) {
                 best = val;
@@ -239,8 +240,12 @@ public class Agent {
                     System.err.flush();
                 }
             } else if (response.equals("NEXTMOVE")) {
-                state.applyMove(nextMove());
-            } else {
+                Move m = nextMove();
+                System.out.println(m.from + ", " + m.to);;
+            } else if (response.equals("EVAL")) {
+                System.out.println(state.eval(true));
+            }
+            else {
                 System.err.println("Unexpected message '" + response + "'");
                 System.err.flush();
             }
