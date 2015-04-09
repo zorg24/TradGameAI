@@ -102,14 +102,13 @@ public class Agent {
         return bestMove;
     }
 
-    private Move minimax(ChineseCheckersState state, int depth) {
-        Move m = null;
+    private void minimax(ChineseCheckersState state, int depth) {
+//        Move m = null;
         Alarm alarm = new Alarm(10);
         for (int d = 0; d < depth; d++) {
             alarm.run();
             minimaxHelper(state, d, d, alarm);
         }
-        return m;
     }
 
     private int minimaxHelper(ChineseCheckersState state, int depth, int startDepth, Alarm alarm) {

@@ -10,7 +10,7 @@ public class Alarm extends Thread {
 
     public Alarm(long time) {
         sleepFor = time;
-        done.set(false);
+        done = new AtomicBoolean(false);
     }
 
     @Override
