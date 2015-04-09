@@ -7,6 +7,11 @@ public class Agent {
         stdin = new Scanner(System.in);
     }
 
+    public Agent(String name_) {
+        name = name_;
+        stdin = new Scanner(System.in);
+    }
+
     public void playGame() {
         // Identify myself
         System.out.println("#name " + name);
@@ -99,14 +104,16 @@ public class Agent {
 
     private Move minimax(ChineseCheckersState state, int depth) {
         Move m = null;
+        Alarm alarm = new Alarm(10);
         for (int d = 0; d < depth; d++) {
-            minimaxHelper(state, d, m);
+            alarm.run();
+            minimaxHelper(state, d, d, alarm);
         }
         return m;
     }
 
-    private int minimaxHelper(ChineseCheckersState state, int depth, Move move) {
-        if (depth == 0 || state.gameOver()) {
+    private int minimaxHelper(ChineseCheckersState state, int depth, int startDepth, Alarm alarm) {
+        if (depth == 0 || state.gameOver() || alarm.isDone()) {
             return state.heuristic();
         }
         ArrayList<Move> mov = new ArrayList<Move>();
@@ -114,10 +121,12 @@ public class Agent {
             int best = Integer.MIN_VALUE;
             state.getMoves(mov);
             for (Move m : mov) {
-                move = m;
-                state.applyMove(move);
-                int val = minimaxHelper(state, depth - 1, move);
-                state.undoMove(move);
+                if (depth == startDepth) {
+                    move_ = m;
+                }
+                state.applyMove(move_);
+                int val = minimaxHelper(state, depth - 1, startDepth, alarm);
+                state.undoMove(move_);
                 best = Math.max(val, best);
             }
             return best;
@@ -125,10 +134,12 @@ public class Agent {
             int best = Integer.MAX_VALUE;
             state.getMoves(mov);
             for (Move m : mov) {
-                move = m;
-                state.applyMove(move);
-                int val = minimaxHelper(state, depth - 1, move);
-                state.undoMove(move);
+                if (depth == startDepth) {
+                    move_ = m;
+                }
+                state.applyMove(move_);
+                int val = minimaxHelper(state, depth - 1, startDepth, alarm);
+                state.undoMove(move_);
                 best = Math.min(val, best);
             }
             return best;
@@ -254,6 +265,7 @@ public class Agent {
 
     private enum Players {player1, player2}
 
+    private Move move_;
     private Players current_player;
     private Players my_player;
     private String name;
