@@ -172,7 +172,7 @@ public class ChineseCheckersState {
 
     int distance = 0;
 
-    public int eval(boolean myTurn) {
+    public int eval() {
         int p1d = 0;
         int p2d = 0;
 
@@ -186,10 +186,10 @@ public class ChineseCheckersState {
                 }
             }
         }
-        if (myTurn) {
-            return p2d - p1d;
+        if (currentPlayer == 1) {
+            return p1d - p2d;
         }
-        return p1d - p2d;
+        return p2d - p1d;
     }
 
 //    private int forwardDistance(int from, int to, boolean isMe) {

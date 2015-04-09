@@ -105,22 +105,22 @@ public class Agent {
 //        alarm.run();
         boolean player = state.getCurrentPlayer() == 1;
 //        for (int d = 0; d < 3; d++) {
-            minimax(state, 3, player, m);
+            minimax(state, 3, state.getCurrentPlayer(), m);
 //        }
         return m;
     }
 
-    private int minimax(ChineseCheckersState state, int depth, boolean myTurn, Move best_move) {
-        if (myTurn) {
-            return max(state, depth, myTurn, best_move);
+    private int minimax(ChineseCheckersState state, int depth, int playerNum, Move best_move) {
+        if (state.getCurrentPlayer() == playerNum) {
+            return max(state, depth, best_move);
         } else {
-            return min(state, depth, myTurn, best_move);
+            return min(state, depth, best_move);
         }
     }
 
-    private int max(ChineseCheckersState state, int depth, boolean myTurn, Move best_move) {
+    private int max(ChineseCheckersState state, int depth, Move best_move) {
         if (depth == 0 || state.gameOver() ) {
-            return state.eval(myTurn);
+            return state.eval();
         }
         int best = Integer.MIN_VALUE;
         ArrayList<Move> mov = new ArrayList<Move>();
@@ -128,7 +128,7 @@ public class Agent {
         int val = 0;
         for (Move m : mov) {
             state.applyMove(m);
-            val = min(state, depth - 1, !myTurn, junkMove);
+            val = min(state, depth - 1, junkMove);
             state.undoMove(m);
             if (val > best) {
                 best = val;
@@ -138,9 +138,9 @@ public class Agent {
         return best;
     }
 
-    private int min(ChineseCheckersState state, int depth, boolean myTurn, Move best_move) {
+    private int min(ChineseCheckersState state, int depth, Move best_move) {
         if (depth == 0 || state.gameOver() ) {
-            return state.eval(myTurn);
+            return state.eval();
         }
         int best = Integer.MAX_VALUE;
         ArrayList<Move> mov = new ArrayList<Move>();
@@ -148,7 +148,7 @@ public class Agent {
         int val = 0;
         for (Move m : mov) {
             state.applyMove(m);
-            val = max(state, depth - 1, !myTurn, junkMove);
+            val = max(state, depth - 1, junkMove);
             state.undoMove(m);
             best = Math.min(val, best);
         }
@@ -243,7 +243,7 @@ public class Agent {
                 Move m = nextMove();
                 System.out.println(m.from + ", " + m.to);;
             } else if (response.equals("EVAL")) {
-                System.out.println(state.eval(true));
+                System.out.println(state.eval());
             }
             else {
                 System.err.println("Unexpected message '" + response + "'");

@@ -15,7 +15,6 @@ public class Alarm extends Thread {
 
     @Override
     public void run() {
-        done.set(false);
         try {
             sleep(sleepFor * 1000 - 200);
         } catch (InterruptedException e) {
