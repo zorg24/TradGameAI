@@ -23,10 +23,10 @@ public class ChineseCheckersState {
     }
 
     // Apply the move m, returning true if m is a valid move, false if not
-    public boolean applyMove(Move m) {
+    public long applyMove(Move m) {
         // Ensure the from and to are reasonable
-        if (m.from > 80 || m.to > 80 || m.from == m.to)
-            return false;
+        //if (m.from > 80 || m.to > 80 || m.from == m.to)
+          //  return false;
 
         // Check the move
         // FIXME: This should be uncommented once you have getMoves working!!
@@ -36,40 +36,59 @@ public class ChineseCheckersState {
     */
 
         // Apply the move
-        int temp = board[m.from];
-        board[m.from] = board[m.to];
-        board[m.to] = temp;
+        //int temp = board[m.from];
+        //board[m.from] = board[m.to];
+       // board[m.to] = temp;
+    	
+    	//Our apply move with hashing
+    	int temp = board[m.from];
+    	hash ^= hashTable[m.from][board[m.from]];
+    	board[m.from] = 0;
+    	hash ^= hashTable[m.from][board[m.from]];
+    	hash ^= hashTable[m.to][board[m.to]];
+    	board[m.to] = temp;
+    	hash ^= hashTable[m.to][board[m.to]];
+    	swapTurn();
+    	return hash;
 
         // Update whose turn it is
-        swapTurn();
+    	//swapTurn();
 
-        return true;
+        //return true;
     }
 
     // Undo the move m, returning true if m is a move that can be undone, false if not
-    public boolean undoMove(Move m) {
+    public long undoMove(Move m) {
         // Ensure the from and to are reasonable
-        if (m.from > 80 || m.to > 80 || m.from == m.to)
-            return false;
+        //if (m.from > 80 || m.to > 80 || m.from == m.to)
+       //     return false;
 
         // Undo the move
-        int temp = board[m.from];
-        board[m.from] = board[m.to];
-        board[m.to] = temp;
-        swapTurn();
+       //int temp = board[m.from];
+       // board[m.from] = board[m.to];
+       // board[m.to] = temp;
+    	int temp = board[m.to];
+    	hash ^= hashTable[m.to][board[m.to]];
+    	board[m.to] = 0;
+    	hash ^= hashTable[m.to][board[m.to]];
+    	hash ^= hashTable[m.from][board[m.from]];
+    	board[m.from] = temp;
+    	hash ^= hashTable[m.from][board[m.from]];
+    	swapTurn();
+    	return hash;
 
         // Check the move is valid from this state that is back one step
-        if (!isValidMove(m)) {
-            // Woops, it was not valid, undo our changes
-            swapTurn();
-            int temp2 = board[m.from];
-            board[m.from] = board[m.to];
-            board[m.to] = temp2;
+//        if (!isValidMove(m)) {
+//            // Woops, it was not valid, undo our changes
+//            swapTurn();
+//            int temp2 = board[m.from];
+//            board[m.from] = board[m.to];
+//            board[m.to] = temp2;
+//
+//            return false;
+//        }
 
-            return false;
-        }
-
-        return true;
+    //    return true;
     }
 
     // Returns true iff the move m is valid
@@ -214,7 +233,7 @@ public class ChineseCheckersState {
     	}
     }
     
-    public long hashB(Move aMove){
+    public long hashApply(Move aMove){
     	hash ^= hashTable[aMove.from][board[aMove.from]];
     	board[aMove.from] = 0;
     	hash ^= hashTable[aMove.from][board[aMove.from]];
@@ -224,7 +243,7 @@ public class ChineseCheckersState {
     	return hash;
     }
     
-    public long hashA(Move aMove){
+    public long hashUndo(Move aMove){
     	hash ^= hashTable[aMove.to][board[aMove.to]];
     	board[aMove.to] = 0;
     	hash ^= hashTable[aMove.to][board[aMove.to]];

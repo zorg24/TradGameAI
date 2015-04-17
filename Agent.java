@@ -250,10 +250,11 @@ public class Agent {
                 System.out.flush();
             } else if (tokens[0].equals("MOVE")) {
                 Move m = state.translateToLocal(tokens);
-                if (!state.applyMove(m)) {
-                    System.err.println("Unable to apply move " + m);
-                    System.err.flush();
-                }
+                //TOOK THIS OUT, MAY NEED IN FUTURE
+              //  if (!state.applyMove(m)) {
+               //     System.err.println("Unable to apply move " + m);
+                //    System.err.flush();
+                //}
             } else if (response.equals("NEXTMOVE")) {
                 Move m = nextMove();
                 System.out.println(m.from + ", " + m.to);;
