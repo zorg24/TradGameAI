@@ -133,6 +133,10 @@ public class Agent {
         state.getMoves(mov);
         for (Move m : mov) {
             state.applyMove(m);
+          //  if(TTManager.getHash(alpha, beta, depth, v, hash)){
+            	
+           // }
+            //TTManager.hash(alpha, beta, depth, v, state.hashB(m));
             v = Math.max(v , min(state, depth - 1, junkMove, timer, alpha, beta));
             state.undoMove(m);
             if( v > alpha ){
