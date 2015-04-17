@@ -1,5 +1,8 @@
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Scanner;
+import java.util.Random;
+
 
 public class Agent {
     public Agent() {
@@ -103,56 +106,65 @@ public class Agent {
         Move m = new Move(0,0);
         Alarm timer = new Alarm(10);
         timer.start();
-        for (int d = 1; !timer.isDone(); d++) {
-            minimax(state, d, state.getCurrentPlayer(), m, timer);
+        int alpha = Integer.MIN_VALUE;
+        int beta = Integer.MAX_VALUE;
+        int d = 1;
+        for (; !timer.isDone(); d++) {
+            minimax(state, d, state.getCurrentPlayer(), m, timer, alpha, beta);
         }
+        System.err.println("The depth is " + d);
         return m;
     }
 
-    private int minimax(ChineseCheckersState state, int depth, int playerNum, Move best_move, Alarm timer) {
+    private int minimax(ChineseCheckersState state, int depth, int playerNum, Move best_move, Alarm timer, int alpha, int beta) {
         if (state.getCurrentPlayer() == playerNum) {
-            return max(state, depth, best_move, timer);
+            return max(state, depth, best_move, timer, alpha, beta);
         } else {
-            return min(state, depth, best_move, timer);
+            return min(state, depth, best_move, timer, alpha, beta);
         }
     }
-
-    private int max(ChineseCheckersState state, int depth, Move best_move, Alarm timer) {
+    
+    private int max(ChineseCheckersState state, int depth, Move best_move, Alarm timer, int alpha, int beta) {
         if (depth == 0 || state.gameOver() || timer.isDone()) {
             return state.eval();
         }
-        int best = Integer.MIN_VALUE;
+        int v = Integer.MIN_VALUE;
         ArrayList<Move> mov = new ArrayList<Move>();
         state.getMoves(mov);
-        int val = 0;
         for (Move m : mov) {
             state.applyMove(m);
-            val = min(state, depth - 1, junkMove, timer);
+            v = Math.max(v , min(state, depth - 1, junkMove, timer, alpha, beta));
             state.undoMove(m);
-            if (val > best) {
-                best = val;
-                best_move.set(m);
+            if( v > alpha ){
+            	best_move.set(m);
+            	alpha = v;
+            }
+            if(beta <= alpha){
+            	return v;
             }
         }
-        return best;
+        return v;
     }
-
-    private int min(ChineseCheckersState state, int depth, Move best_move, Alarm timer) {
+    
+    private int min(ChineseCheckersState state, int depth, Move best_move, Alarm timer, int alpha, int beta) {
         if (depth == 0 || state.gameOver() || timer.isDone()) {
             return state.eval();
         }
-        int best = Integer.MAX_VALUE;
+        int v = Integer.MAX_VALUE;
         ArrayList<Move> mov = new ArrayList<Move>();
         state.getMoves(mov);
-        int val = 0;
         for (Move m : mov) {
             state.applyMove(m);
-            val = max(state, depth - 1, best_move, timer);
+            v = Math.min(v , max(state, depth - 1, best_move, timer, alpha, beta));
             state.undoMove(m);
-            best = Math.min(val, best);
+            beta = Math.min(v, beta);
         }
-        return best;
+        if(beta <= alpha){
+        	return v;
+        }
+        return v;
     }
+    
 
 //    private int forwardDistance(int from, int to) {
 //        int fromRow = from / 9;

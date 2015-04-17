@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Random;
 
 
 public class ChineseCheckersState {
@@ -186,7 +187,8 @@ public class ChineseCheckersState {
                 }
             }
         }
-        if (currentPlayer == 1) {
+       // if (currentPlayer == 1) {
+        if(getCurrentPlayer() == 1){	
             return p1d - p2d;
         }
         return p2d - p1d;
@@ -202,6 +204,38 @@ public class ChineseCheckersState {
 //            mult = -1;
 //        return ((toRow + toCol) - (fromRow + fromCol))*mult;
 //    }
+    
+    private void randomize(){
+    	Random rand = new Random();
+    	for(int i = 0; i < 3; i++){
+    		for(int j = 0; j < 81; i ++){
+    			hashTable[j][i] = rand.nextLong();
+    		}
+    	}
+    }
+    
+    public long hashB(Move aMove){
+    	hash ^= hashTable[aMove.from][board[aMove.from]];
+    	board[aMove.from] = 0;
+    	hash ^= hashTable[aMove.from][board[aMove.from]];
+    	hash ^= hashTable[aMove.to][board[aMove.to]];
+    	board[aMove.to] = getCurrentPlayer();
+    	hash ^= hashTable[aMove.to][board[aMove.to]];
+    	return hash;
+    }
+    
+    public long hashA(Move aMove){
+    	hash ^= hashTable[aMove.to][board[aMove.to]];
+    	board[aMove.to] = 0;
+    	hash ^= hashTable[aMove.to][board[aMove.to]];
+    	hash ^= hashTable[aMove.from][board[aMove.from]];
+    	board[aMove.from] = getCurrentPlayer();
+    	hash ^= hashTable[aMove.from][board[aMove.from]];
+    	return hash;
+    }
+    
+    private long hashTable[][] = new long[81][3];	
+    private long hash;
 
     private int[] board;
     private int currentPlayer = 0;
