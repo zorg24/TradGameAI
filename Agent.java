@@ -123,7 +123,7 @@ public class Agent {
             return min(state, depth, best_move, timer, alpha, beta);
         }
     }
-    
+
     private int max(ChineseCheckersState state, int depth, Move best_move, Alarm timer, int alpha, int beta) {
         if (depth == 0 || state.gameOver() || timer.isDone()) {
             return state.eval();
@@ -132,16 +132,27 @@ public class Agent {
         ArrayList<Move> mov = new ArrayList<Move>();
         state.getMoves(mov);
         for (Move m : mov) {
-            state.applyMove(m);
-          //  if(TTManager.getHash(alpha, beta, depth, v, hash)){
-            	
-           // }
-            //TTManager.hash(alpha, beta, depth, v, state.hashB(m));
-            v = Math.max(v , min(state, depth - 1, junkMove, timer, alpha, beta));
+            long hash = state.applyMove(m);
+            boolean hasHash = tt.containsKey(hash);
+            if (hasHash){
+                TTEntry ttEntry = tt.get(hash);
+                if (DEBUG) {
+                    int score = minimax(state, ttEntry.getDepth(), state.getCurrentPlayer(), junkMove, timer, ttEntry.getAlpha(), ttEntry.getBeta());
+                    if (score == ttEntry.getScore()) {
+                        System.err.println("it worked... maybe");
+                    } else {
+                        System.err.println("something went horribly wrong (aka a we had a collision)");
+                    }
+                }
+            }
+            v = Math.max(v, min(state, depth - 1, junkMove, timer, alpha, beta));
             state.undoMove(m);
             if( v > alpha ){
-            	best_move.set(m);
-            	alpha = v;
+                best_move.set(m);
+                alpha = v;
+            }
+            if (!hasHash) {
+                tt.put(hash, new TTEntry(alpha, beta, depth, v));
             }
             if(beta <= alpha){
             	return v;
@@ -158,17 +169,32 @@ public class Agent {
         ArrayList<Move> mov = new ArrayList<Move>();
         state.getMoves(mov);
         for (Move m : mov) {
-            state.applyMove(m);
-            v = Math.min(v , max(state, depth - 1, best_move, timer, alpha, beta));
+            long hash = state.applyMove(m);
+            boolean hasHash = tt.containsKey(hash);
+            if (hasHash) {
+                TTEntry ttEntry = tt.get(hash);
+                if (DEBUG) {
+                    int score = minimax(state, ttEntry.getDepth(), state.getCurrentPlayer(), junkMove, timer, ttEntry.getAlpha(), ttEntry.getBeta());
+                    if (score == ttEntry.getScore()) {
+                        System.err.println("it worked... maybe");
+                    } else {
+                        System.err.println("something went horribly wrong (aka a we had a collision)");
+                    }
+                }
+            }
+            v = Math.min(v, max(state, depth - 1, best_move, timer, alpha, beta));
             state.undoMove(m);
             beta = Math.min(v, beta);
-        }
-        if(beta <= alpha){
-        	return v;
+            if (!hasHash) {
+                tt.put(hash, new TTEntry(alpha, beta, depth, v));
+            }
+            if (beta <= alpha) {
+                return v;
+            }
         }
         return v;
     }
-    
+
 
 //    private int forwardDistance(int from, int to) {
 //        int fromRow = from / 9;
@@ -290,10 +316,11 @@ public class Agent {
                 tokens[1].equals("FROM") && tokens[3].equals("TO");
     }
 
+    private TranspositionTable tt = new TranspositionTable();
     private ChineseCheckersState state = new ChineseCheckersState();
 
     private enum Players {player1, player2}
-
+    public final static boolean DEBUG = true;
     private final Move junkMove = new Move(0, 0);
     private Players current_player;
     private Players my_player;

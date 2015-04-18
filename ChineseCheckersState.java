@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Random;
 
 
@@ -6,6 +7,7 @@ public class ChineseCheckersState {
     // Initialize with the starting state for a 2 player game
     public ChineseCheckersState() {
         reset();
+        randomize();
     }
 
     // Put all valid moves into the vector of moves passed in by reference
@@ -224,13 +226,16 @@ public class ChineseCheckersState {
 //        return ((toRow + toCol) - (fromRow + fromCol))*mult;
 //    }
     
-    private void randomize(){
-    	Random rand = new Random();
+    private void randomize() {
+        long time = System.nanoTime();
+    	Random rand = new Random(time);
     	for(int i = 0; i < 3; i++){
-    		for(int j = 0; j < 81; i ++){
-    			hashTable[j][i] = rand.nextLong();
+    		for(int j = 0; j < 81; j++){
+                hashTable[j][i] = rand.nextLong();
     		}
     	}
+        System.err.println(rand.toString());
+        System.err.println(Arrays.deepToString(hashTable));
     }
     
     public long hashApply(Move aMove){
@@ -290,6 +295,10 @@ public class ChineseCheckersState {
         // Down Right
         if (col < 8 && board[from + 1] == 0)
             moves.add(new Move(from, from + 1));
+    }
+
+    public long getHash() {
+        return hash;
     }
 
     private void getJumps(ArrayList<Move> moves, int from) {
@@ -368,4 +377,3 @@ public class ChineseCheckersState {
         return p2inTriangle;
     }
 }
-

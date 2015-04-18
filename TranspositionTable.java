@@ -1,54 +1,28 @@
+import java.util.HashMap;
 
-public class TranspositionTable {
-	private int alpha;
-	private int beta;
-	private int depth;
-	private int score;
+public class TranspositionTable extends HashMap<Long, TTEntry> {
+//	private  table = new HashMap<Long, TTEntry>();
 	
-	public TranspositionTable(){
-		alpha = 0;
-		beta = 0;
-		depth = 0;
-		score = 0;
-	}
-	
-	public TranspositionTable(int a, int b, int c, int d){
-		alpha = a;
-		beta = b;
-		depth = c;
-		score = d;
-	}
-	
-	public int getDepth(){
-		return depth;
-	}
-	
-	public int getAlpha(){
-		return alpha;
-	}
-	
-	public int getBeta(){
-		return beta;
-	}
-	
-	public int getScore(){
-		return score;
-	}
-	
-	public void setScore(int a){
-		score = a;
-	}
-	
-	public void setBeta(int b){
-		beta = b;
-	}
-	
-	public void setDepth(int c){
-		depth = c;
-	}
-	
-	public void setAlpha(int d){
-		alpha = d;
-	}
-
+//	public TranspositionTable(){
+//	}
+//
+//	public int size() {
+//		return table.size();
+//	}
+//
+//	public void put(long hash, TTEntry ttEntry) {
+//		table.put(hash, ttEntry);
+//	}
+//
+//	public TTEntry get(long hash) {
+//		return table.get(hash);
+//	}
+//
+//	public boolean contains(TTEntry tte) {
+//		table.
+//	}
+//
+//	public void clear() {
+//		table.clear();
+//	}
 }
