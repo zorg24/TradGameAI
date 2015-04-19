@@ -110,6 +110,7 @@ public class Agent {
         int beta = Integer.MAX_VALUE;
         int d = 1;
         for (; !timer.isDone(); d++) {
+        	tt.clear();
             minimax(state, d, state.getCurrentPlayer(), m, timer, alpha, beta);
         }
         System.err.println("The depth is " + d);
@@ -123,7 +124,7 @@ public class Agent {
             return min(state, depth, best_move, timer, alpha, beta);
         }
     }
-
+    
     private int max(ChineseCheckersState state, int depth, Move best_move, Alarm timer, int alpha, int beta) {
         if (depth == 0 || state.gameOver() || timer.isDone()) {
             return state.eval();
@@ -133,17 +134,16 @@ public class Agent {
         state.getMoves(mov);
         for (Move m : mov) {
             long hash = state.applyMove(m);
-            boolean hasHash = tt.containsKey(hash);
-            if (hasHash){
-                TTEntry ttEntry = tt.get(hash);
-                if (DEBUG) {
-                    int score = minimax(state, ttEntry.getDepth(), state.getCurrentPlayer(), junkMove, timer, ttEntry.getAlpha(), ttEntry.getBeta());
-                    if (score == ttEntry.getScore()) {
-                        System.err.println("it worked... maybe");
-                    } else {
-                        System.err.println("something went horribly wrong (aka a we had a collision)");
-                    }
-                }
+            TTEntry ttEntry = tt.get(hash);
+            if(ttEntry != null){
+            	if(ttEntry.getScore() > alpha ){
+            		alpha = ttEntry.getScore();
+            		v = alpha;
+            		best_move.set(m);
+            	}
+            	if(alpha >= beta){
+            		return alpha;
+            	}
             }
             v = Math.max(v, min(state, depth - 1, junkMove, timer, alpha, beta));
             state.undoMove(m);
@@ -151,12 +151,10 @@ public class Agent {
                 best_move.set(m);
                 alpha = v;
             }
-            if (!hasHash) {
-                tt.put(hash, new TTEntry(alpha, beta, depth, v));
-            }
             if(beta <= alpha){
             	return v;
             }
+            
         }
         return v;
     }
@@ -170,27 +168,22 @@ public class Agent {
         state.getMoves(mov);
         for (Move m : mov) {
             long hash = state.applyMove(m);
-            boolean hasHash = tt.containsKey(hash);
-            if (hasHash) {
-                TTEntry ttEntry = tt.get(hash);
-                if (DEBUG) {
-                    int score = minimax(state, ttEntry.getDepth(), state.getCurrentPlayer(), junkMove, timer, ttEntry.getAlpha(), ttEntry.getBeta());
-                    if (score == ttEntry.getScore()) {
-                        System.err.println("it worked... maybe");
-                    } else {
-                        System.err.println("something went horribly wrong (aka a we had a collision)");
-                    }
-                }
+            TTEntry ttEntry = tt.get(hash);
+            if(ttEntry != null){
+            	if(ttEntry.getScore() < beta ){
+            		beta = ttEntry.getScore();
+            	}
+            	if(alpha >= beta){
+            		return beta;
+            	}
             }
-            v = Math.min(v, max(state, depth - 1, best_move, timer, alpha, beta));
+            v = Math.max(v, max(state, depth - 1, junkMove, timer, alpha, beta));
             state.undoMove(m);
             beta = Math.min(v, beta);
-            if (!hasHash) {
-                tt.put(hash, new TTEntry(alpha, beta, depth, v));
+            if(beta <= alpha){
+            	return v;
             }
-            if (beta <= alpha) {
-                return v;
-            }
+            
         }
         return v;
     }
@@ -320,7 +313,7 @@ public class Agent {
     private ChineseCheckersState state = new ChineseCheckersState();
 
     private enum Players {player1, player2}
-    public final static boolean DEBUG = true;
+    public boolean DEBUG = true;
     private final Move junkMove = new Move(0, 0);
     private Players current_player;
     private Players my_player;
