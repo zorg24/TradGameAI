@@ -1,6 +1,4 @@
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Random;
+import java.util.*;
 
 
 public class ChineseCheckersState {
@@ -12,6 +10,7 @@ public class ChineseCheckersState {
         randomize();
     }
 
+    Comparator<Move> moveComparator = (Comparator.comparing((Move m) -> forwardDistance(m))).reversed();
     // Put all valid moves into the vector of moves passed in by reference
     public void getMoves(ArrayList<Move> moves) {
         // WARNING: This function must not return duplicate moves
@@ -20,16 +19,27 @@ public class ChineseCheckersState {
 
         for (int i = 0; i < 81; ++i) {
             if (board[i] == currentPlayer) {
-            	getJumps(moveQueue, i);
+                getJumps(moveQueue, i);
                 getMovesSingleStep(moveQueue, i);
-                for(Move move : moveQueue){
-                	if(forwardDistance(move) >= 0){
-                		moves.add(move);
-                	}
+                for (Move move : moveQueue) {
+                    if (forwardDistance(move) >= 0)
+                        moves.add(move);
                 }
                 // Need to add jump moves
             }
         }
+        Collections.sort(moves, moveComparator);
+    }
+
+    private int forwardDistance(Move move) {
+        int fromRow = move.from / 9;
+        int toRow = move.to / 9;
+        int fromCol = move.from % 9;
+        int toCol = move.to % 9;
+        int mult = 1;
+        if (currentPlayer == 2)
+            mult = -1;
+        return ((toRow + toCol) - (fromRow + fromCol))*mult;
     }
 
     // Apply the move m, returning true if m is a valid move, false if not
@@ -203,6 +213,12 @@ public class ChineseCheckersState {
     int distance = 0;
 
     public int eval() {
+        int winner = winner();
+        if (currentPlayer == winner)
+            return Integer.MAX_VALUE;
+        else if (3 - currentPlayer == winner)
+            return Integer.MIN_VALUE;
+
         int p1d = 0;
         int p2d = 0;
 
@@ -221,17 +237,6 @@ public class ChineseCheckersState {
             return p1d - p2d;
         }
         return p2d - p1d;
-    }
-
-    private int forwardDistance(Move move) {
-        int fromRow = move.from / 9;
-        int toRow = move.to / 9;
-        int fromCol = move.from % 9;
-        int toCol = move.to % 9;
-        int mult = 1;
-        if (currentPlayer == 2)
-            mult = -1;
-        return ((toRow + toCol) - (fromRow + fromCol))*mult;
     }
     
     private void randomize() {

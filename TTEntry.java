@@ -3,7 +3,6 @@ public class TTEntry {
 	private int beta;
 	private int depth;
 	private int score;
-	//private int bound;
 
 	public TTEntry(){
 		alpha = 0;
@@ -17,12 +16,7 @@ public class TTEntry {
 		this.beta = beta;
 		this.depth = depth;
 		this.score = score;
-		//this.bound = bound;
 	}
-	
-	//public int getBound(){
-	//	return bound;
-	//}
 	
 	public int getDepth(){
 		return depth;
