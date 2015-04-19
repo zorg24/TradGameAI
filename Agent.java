@@ -135,14 +135,12 @@ public class Agent {
         for (Move m : mov) {
             long hash = state.applyMove(m);
             TTEntry ttEntry = tt.get(hash);
-            if(ttEntry != null){
-            	if(ttEntry.getScore() > alpha ){
-            		alpha = ttEntry.getScore();
-            		v = alpha;
-            		best_move.set(m);
+            if(ttEntry != null && ttEntry.getDepth() >= depth){
+            	if(ttEntry.getBeta() > beta ){
+            		beta = ttEntry.getBeta();
             	}
             	if(alpha >= beta){
-            		return alpha;
+            		return ttEntry.getScore();
             	}
             }
             v = Math.max(v, min(state, depth - 1, junkMove, timer, alpha, beta));
@@ -151,6 +149,7 @@ public class Agent {
                 best_move.set(m);
                 alpha = v;
             }
+            tt.put(hash, new TTEntry(alpha, beta, depth, v));
             if(beta <= alpha){
             	return v;
             }
@@ -169,17 +168,18 @@ public class Agent {
         for (Move m : mov) {
             long hash = state.applyMove(m);
             TTEntry ttEntry = tt.get(hash);
-            if(ttEntry != null){
-            	if(ttEntry.getScore() < beta ){
-            		beta = ttEntry.getScore();
-            	}
+            if(ttEntry != null && ttEntry.getDepth() >= depth){
+            	if(ttEntry.getAlpha() < alpha ){
+            		alpha = ttEntry.getAlpha();
+            	}	
             	if(alpha >= beta){
-            		return beta;
+            		return ttEntry.getScore();
             	}
             }
-            v = Math.max(v, max(state, depth - 1, junkMove, timer, alpha, beta));
+            v = Math.min(v, max(state, depth - 1, junkMove, timer, alpha, beta));
             state.undoMove(m);
             beta = Math.min(v, beta);
+            tt.put(hash, new TTEntry(alpha, beta, depth, v));
             if(beta <= alpha){
             	return v;
             }
