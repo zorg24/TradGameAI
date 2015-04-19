@@ -5,6 +5,8 @@ import java.util.Random;
 
 public class ChineseCheckersState {
     // Initialize with the starting state for a 2 player game
+	ArrayList<Move> moveQueue = new ArrayList<Move>();
+	
     public ChineseCheckersState() {
         reset();
         randomize();
@@ -14,11 +16,17 @@ public class ChineseCheckersState {
     public void getMoves(ArrayList<Move> moves) {
         // WARNING: This function must not return duplicate moves
         moves.clear();
+        moveQueue.clear();
 
         for (int i = 0; i < 81; ++i) {
             if (board[i] == currentPlayer) {
-                getMovesSingleStep(moves, i);
-                getJumps(moves, i);
+            	getJumps(moveQueue, i);
+                getMovesSingleStep(moveQueue, i);
+                for(Move move : moveQueue){
+                	if(forwardDistance(move) >= 0){
+                		moves.add(move);
+                	}
+                }
                 // Need to add jump moves
             }
         }
@@ -215,16 +223,16 @@ public class ChineseCheckersState {
         return p2d - p1d;
     }
 
-//    private int forwardDistance(int from, int to, boolean isMe) {
-//        int fromRow = from / 9;
-//        int toRow = to / 9;
-//        int fromCol = from % 9;
-//        int toCol = to % 9;
-//        int mult = 1;
-//        if (currentPlayer == 2)
-//            mult = -1;
-//        return ((toRow + toCol) - (fromRow + fromCol))*mult;
-//    }
+    private int forwardDistance(Move move) {
+        int fromRow = move.from / 9;
+        int toRow = move.to / 9;
+        int fromCol = move.from % 9;
+        int toCol = move.to % 9;
+        int mult = 1;
+        if (currentPlayer == 2)
+            mult = -1;
+        return ((toRow + toCol) - (fromRow + fromCol))*mult;
+    }
     
     private void randomize() {
         long time = System.nanoTime();

@@ -136,10 +136,36 @@ public class Agent {
             long hash = state.applyMove(m);
             TTEntry ttEntry = tt.get(hash);
             if(ttEntry != null && ttEntry.getDepth() >= depth){
-            	if(ttEntry.getBeta() > beta ){
-            		beta = ttEntry.getBeta();
+            	if(DEBUG){
+            		int tempA = 0;
+            		int tempB = 0;
+            		DEBUG = false;
+            		System.err.println(depth);
+            		System.err.println(ttEntry.getDepth());
+            		int score = max(state, ttEntry.getDepth(), best_move, timer, tempA, tempB);
+            		if(tempA <= ttEntry.getAlpha()){
+            			System.err.println("Good");
+            			System.err.println(tempA);
+            			System.err.println(ttEntry.getAlpha());
+            		}
+            		else{
+            			System.err.println("Bad");
+            		}
+            		if((tempB >= ttEntry.getBeta()) || ttEntry.getBeta() == Integer.MAX_VALUE){
+            			System.err.println("Good");
+            		}
+            		else{
+            			System.err.println("Bad");
+            			System.err.println(tempB);
+            			System.err.println(ttEntry.getBeta());
+            		}
+            	}
+            	if(ttEntry.getAlpha() > alpha){
+            		alpha = ttEntry.getAlpha();
             	}
             	if(alpha >= beta){
+            		//System.err.println("We are hitting this");
+            		state.undoMove(m);
             		return ttEntry.getScore();
             	}
             }
@@ -151,6 +177,7 @@ public class Agent {
             }
             tt.put(hash, new TTEntry(alpha, beta, depth, v));
             if(beta <= alpha){
+            	//System.err.println("We are hitting this");
             	return v;
             }
             
@@ -169,13 +196,19 @@ public class Agent {
             long hash = state.applyMove(m);
             TTEntry ttEntry = tt.get(hash);
             if(ttEntry != null && ttEntry.getDepth() >= depth){
-            	if(ttEntry.getAlpha() < alpha ){
-            		alpha = ttEntry.getAlpha();
+            	
+            	if(ttEntry.getBeta() < beta ){
+            		//System.err.println("We are hitting this");
+            		beta = ttEntry.getBeta();
             	}	
+            	
             	if(alpha >= beta){
+            		//System.err.println("We are hitting this");
+            		state.undoMove(m);
             		return ttEntry.getScore();
             	}
             }
+           //System.err.println("We are hitting this");
             v = Math.min(v, max(state, depth - 1, junkMove, timer, alpha, beta));
             state.undoMove(m);
             beta = Math.min(v, beta);
