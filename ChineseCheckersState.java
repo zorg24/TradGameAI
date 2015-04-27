@@ -1,4 +1,6 @@
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Random;
 
 
 public class ChineseCheckersState {
@@ -10,6 +12,7 @@ public class ChineseCheckersState {
         randomize();
     }
 
+    public int turnNumber = 0;
     Comparator<Move> moveComparator = (Comparator.comparing((Move m) -> forwardDistance(m))).reversed();
     // Put all valid moves into the vector of moves passed in by reference
     public void getMoves(ArrayList<Move> moves) {
@@ -70,6 +73,7 @@ public class ChineseCheckersState {
     	hash ^= hashTable[m.to][board[m.to]];
     	swapTurn();
     	return hash;
+    	
 
         // Update whose turn it is
     	//swapTurn();
@@ -114,9 +118,10 @@ public class ChineseCheckersState {
     // Returns true iff the move m is valid
     public boolean isValidMove(Move m) {
         // Ensure from and to make sense
-        if (board[m.from] != currentPlayer || board[m.to] != 0)
+        if (board[m.from] != currentPlayer || board[m.to] != 0){
             return false;
-
+    	}
+        //return true;
         // NOTE: Checking validity in this way is inefficient
 
         // Get current available moves
