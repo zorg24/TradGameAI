@@ -1,7 +1,4 @@
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Random;
-
+import java.util.*;
 
 public class ChineseCheckersState {
     // Initialize with the starting state for a 2 player game
