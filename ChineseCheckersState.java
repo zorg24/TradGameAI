@@ -12,12 +12,31 @@ public class ChineseCheckersState {
         randomize();
     }
 
+    public int turnNumber = 0;
     // Put all valid moves into the vector of moves passed in by reference
     public void getMoves(ArrayList<Move> moves) {
         // WARNING: This function must not return duplicate moves
+    	moves.clear();
+    	moveQueue.clear();
+    	for (int i = 0; i < 81; ++i) {
+    		if (board[i] == currentPlayer) {
+    			getJumps(moveQueue, i);
+    			getMovesSingleStep(moveQueue, i);
+    			for(Move move : moveQueue){
+    				if(forwardDistance(move) >= 0){
+    					moves.add(move);
+    				}
+    			}
+    			// Need to add jump moves
+    		}
+    	}
+    }
+
+    public void getMoves2(ArrayList<Move> moves) {
+        // WARNING: This function must not return duplicate moves
         moves.clear();
         moveQueue.clear();
-
+        
         for (int i = 0; i < 81; ++i) {
             if (board[i] == currentPlayer) {
             	getJumps(moveQueue, i);
@@ -60,11 +79,13 @@ public class ChineseCheckersState {
     	hash ^= hashTable[m.to][board[m.to]];
     	swapTurn();
     	return hash;
+    	
 
         // Update whose turn it is
     	//swapTurn();
 
         //return true;
+    	
     }
 
     // Undo the move m, returning true if m is a move that can be undone, false if not
@@ -104,14 +125,15 @@ public class ChineseCheckersState {
     // Returns true iff the move m is valid
     public boolean isValidMove(Move m) {
         // Ensure from and to make sense
-        if (board[m.from] != currentPlayer || board[m.to] != 0)
+        if (board[m.from] != currentPlayer || board[m.to] != 0){
             return false;
-
+    	}
+        //return true;
         // NOTE: Checking validity in this way is inefficient
 
         // Get current available moves
         ArrayList<Move> moves = new ArrayList<Move>();
-        getMoves(moves);
+        getMoves2(moves);
 
         // Find the move among the set of available moves
         boolean found = moves.contains(m);
