@@ -1,5 +1,6 @@
 import java.util.*;
 
+
 public class ChineseCheckersState {
     // Initialize with the starting state for a 2 player game
 	ArrayList<Move> moveQueue = new ArrayList<Move>();
@@ -9,6 +10,7 @@ public class ChineseCheckersState {
         randomize();
     }
 
+    public int blah = 0;
     public int turnNumber = 0;
     Comparator<Move> moveComparator = (Comparator.comparing((Move m) -> forwardDistance(m))).reversed();
     // Put all valid moves into the vector of moves passed in by reference
@@ -215,11 +217,11 @@ public class ChineseCheckersState {
     int distance = 0;
 
     public int eval() {
-        int winner = winner();
+/*        int winner = winner();
         if (currentPlayer == winner)
             return Integer.MAX_VALUE;
         else if (3 - currentPlayer == winner)
-            return Integer.MIN_VALUE;
+            return Integer.MIN_VALUE;*/
 
         int p1d = 0;
         int p2d = 0;

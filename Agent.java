@@ -161,28 +161,19 @@ public class Agent {
 
     private int minimax(ChineseCheckersState state, int depth, int playerNum, Move best_move, Alarm timer, int alpha, int beta) {
         if (state.getCurrentPlayer() == playerNum) {
-            return max(state, depth, best_move, timer, alpha, beta);
+            return max2(state, depth, best_move, timer, alpha, beta);
         } else {
-            return min(state, depth, best_move, timer, alpha, beta);
+            return min2(state, depth, best_move, timer, alpha, beta);
         }
     }
     
-    private int max(ChineseCheckersState state, int depth, Move best_move, Alarm timer, int alpha, int beta) {
+/*    private int max(ChineseCheckersState state, int depth, Move best_move, Alarm timer, int alpha, int beta) {
     	long hash = state.getHash();
+        nodeVisited ++;
     	if (depth == 0 || state.gameOver() || timer.isDone()) {
-           // return state.eval();
-        	int b = state.eval();
-            if(b >= beta){
-            	tt.put(hash, new TTEntry(alpha, beta, depth, b, 1));
-            }
-            else if(b <= alpha){
-            	tt.put(hash, new TTEntry(alpha, beta, depth, b, 2));
-            }
-            else{
-            	tt.put(hash, new TTEntry(alpha, beta, depth, b, 0));
-            }
-            nodeVisited ++;
-            return b;
+            return state.eval();
+        	//int b = state.eval();
+            //return b;
         }
         int v = Integer.MIN_VALUE;
         int best = Integer.MIN_VALUE;
@@ -226,10 +217,12 @@ public class Agent {
             		return ttEntry.getScore();
             	}
             	
+            	//if(ttEntry.getBound() == 1 && alpha > ttEntry.getAlpha()){
             	if(ttEntry.getBound() == 1 && alpha > ttEntry.getAlpha()){
             		alpha = ttEntry.getScore();
             	}
             	
+            	//if(ttEntry.getBound() == 2 && beta < ttEntry.getBeta()){
             	if(ttEntry.getBound() == 2 && beta < ttEntry.getBeta()){
             		beta = ttEntry.getScore();
             	}
@@ -259,19 +252,24 @@ public class Agent {
             //if (v == < alpha or > beta ) exact
             //if (v == alpha or >alpha, upper bound
             
-            //exact
-           // if(v > alpha && v < beta){
-           // 	tt.put(hash, new TTEntry(alpha, beta, depth, v, 0));
-           // }
             //upper
-           // else if(v == alpha || v < alpha ){
-           // 	tt.put(hash, new TTEntry(alpha, beta, depth, v, 1));
-           // }
+            if(v <= alpha ){
+            	tt.put(hash, new TTEntry(alpha, beta, depth, v, 1));
+            }
             //lower
-           // else if(v == beta || v > beta ){
-            //tt.put(hash, new TTEntry(alpha, beta, depth, v, 2));
+            else if(v >= beta ){
+            tt.put(hash, new TTEntry(alpha, beta, depth, v, 2));
+            }
+            //exact
+            else{
+            	tt.put(hash, new TTEntry(alpha, beta, depth, v, 0));
+            }
             
-/*            if(v >= beta){
+            else(v > alpha && v < beta){
+            	tt.put(hash, new TTEntry(alpha, beta, depth, v, 0));
+            }
+            
+            if(v >= beta){
             	tt.put(hash, new TTEntry(alpha, beta, depth, v, 1));
             }
             else if(v <= alpha){
@@ -279,7 +277,7 @@ public class Agent {
             }
             else{
             	tt.put(hash, new TTEntry(alpha, beta, depth, v, 0));
-            }*/
+            }
             
             //tt.put(hash, new TTEntry(alpha, beta, depth, v));
             if(beta <= alpha){
@@ -311,22 +309,13 @@ public class Agent {
     
     private int min(ChineseCheckersState state, int depth, Move best_move, Alarm timer, int alpha, int beta) {
         long hash = state.getHash();
+        nodeVisited ++;
     	if (depth == 0 || state.gameOver() || timer.isDone()) {
-           // return state.eval();
-        	int b = state.eval();
-            if(b >= beta){
-            	tt.put(hash, new TTEntry(alpha, beta, depth, b, 1));
-            }
-            else if(b <= alpha){
-            	tt.put(hash, new TTEntry(alpha, beta, depth, b, 2));
-            }
-            else{
-            	tt.put(hash, new TTEntry(alpha, beta, depth, b, 0));
-            }
-            nodeVisited ++;
-            return b;
+            return state.eval();
+        	//int b = state.eval();
+            //return b;
         }
-        int best = 0;
+        int best = Integer.MAX_VALUE;
         int v = Integer.MAX_VALUE;
         ArrayList<Move> mov = new ArrayList<Move>();
         state.getMoves(mov);
@@ -347,6 +336,8 @@ public class Agent {
             		beta = ttEntry.getScore();
             	}
             	
+            	
+            	
             	//if(ttEntry.getBeta() < beta ){
             		//System.err.println("We are hitting this");
             	//	beta = ttEntry.getBeta();
@@ -366,7 +357,7 @@ public class Agent {
             }
             //beta = Math.min(v, beta);
             beta = Math.min(best, beta);
-/*            if(v >= beta){
+            if(v >= beta){
             	tt.put(hash, new TTEntry(alpha, beta, depth, v, 1));
             }
             else if(v <= alpha){
@@ -374,10 +365,10 @@ public class Agent {
             }
             else{
             	tt.put(hash, new TTEntry(alpha, beta, depth, v, 0));
-            }*/
+            }
             
             
-/*            if(v > alpha && v < beta){
+            if(v > alpha && v < beta){
             	tt.put(hash, new TTEntry(alpha, beta, depth, v, 0));
             }
             //upper
@@ -387,7 +378,7 @@ public class Agent {
             //lower
             else if(v == beta || v > beta ){
             	tt.put(hash, new TTEntry(alpha, beta, depth, v, 2));
-            }*/
+            }
            // tt.put(hash, new TTEntry(alpha, beta, depth, v));
             if(beta <= alpha){
                 if(v >= beta){
@@ -414,6 +405,136 @@ public class Agent {
         }
         return v;
     }
+   */
+    private int max2(ChineseCheckersState state, int depth, Move best_move, Alarm timer, int alpha, int beta) {
+    	nodeVisited ++;
+    	long hash = state.getHash();
+        int best = Integer.MIN_VALUE;
+        int v = Integer.MIN_VALUE;
+        TTEntry ttEntry = tt.get(hash);
+        if(ttEntry != null && ttEntry.getDepth() >= depth){
+        	
+        	if(ttEntry.getBound() == 0){
+        		return ttEntry.getScore();
+        	}
+        	
+        	if(ttEntry.getBound() == 1 && alpha < ttEntry.getScore()){
+        		alpha = ttEntry.getScore();
+        	}
+        	
+        	if(ttEntry.getBound() == 2 && beta > ttEntry.getScore()){
+        		beta = ttEntry.getScore();
+        	}
+        }
+        
+    	if (depth == 0 || state.gameOver() || timer.isDone()) {
+            //return state.eval();
+    		v= state.eval();
+    		if(v <= alpha ){
+    			tt.put(hash, new TTEntry(alpha, beta, depth, v, 1));
+    		}
+    		else if(v >= beta){
+    			tt.put(hash, new TTEntry(alpha, beta, depth, v, 2));
+    		}
+    		else{
+    			tt.put(hash, new TTEntry(alpha, beta, depth, v, 0));
+    		}
+    		return v;
+    		
+        }
+    	 ArrayList<Move> mov = new ArrayList<Move>();
+         state.getMoves(mov);
+         for (Move m : mov) {
+        	 state.applyMove(m);
+        	 v = Math.max(v, min2(state, depth - 1, junkMove, timer, alpha, beta));
+        	 state.undoMove(m);
+        	 if(v > best){
+        		 best_move.set(m);
+        		 best = v;
+        	 }
+        	 if(best > alpha){
+        		 alpha = best;
+        	 }
+        	 if(alpha >= beta){
+        		break;
+        	 }
+         }
+    	 if(best <= alpha){
+    		 tt.put(hash, new TTEntry(alpha, beta, depth, v, 1));
+    	 }
+    	 if(best >= beta){
+    		 tt.put(hash, new TTEntry(alpha, beta, depth, v, 2));
+    	 }
+    	 else{
+    		 tt.put(hash, new TTEntry(alpha, beta, depth, v, 0));
+    	 }
+    	 return best;
+    }
+    
+    private int min2(ChineseCheckersState state, int depth, Move best_move, Alarm timer, int alpha, int beta) {
+    	nodeVisited ++;
+    	long hash = state.getHash();
+        int best = Integer.MAX_VALUE;
+        int v = Integer.MAX_VALUE;
+        TTEntry ttEntry = tt.get(hash);
+        if(ttEntry != null && ttEntry.getDepth() >= depth){
+        	
+        	if(ttEntry.getBound() == 0){
+        		return ttEntry.getScore();
+        	}
+        	
+        	if(ttEntry.getBound() == 1 && alpha < ttEntry.getScore()){
+        		alpha = ttEntry.getScore();
+        	}
+        	
+        	if(ttEntry.getBound() == 2 && beta > ttEntry.getScore()){
+        		beta = ttEntry.getScore();
+        	}
+        }
+        
+    	if (depth == 0 || state.gameOver() || timer.isDone()) {
+            //return state.eval();
+    		v= state.eval();
+    		if(v <= alpha ){
+    			tt.put(hash, new TTEntry(alpha, beta, depth, v, 1));
+    		}
+    		else if(v >= beta){
+    			tt.put(hash, new TTEntry(alpha, beta, depth, v, 2));
+    		}
+    		else{
+    			tt.put(hash, new TTEntry(alpha, beta, depth, v, 0));
+    		}
+    		return v;
+    		
+        }
+    	 ArrayList<Move> mov = new ArrayList<Move>();
+         state.getMoves(mov);
+         for (Move m : mov) {
+        	 state.applyMove(m);
+        	 v = Math.min(v, max2(state, depth - 1, junkMove, timer, alpha, beta));
+        	 state.undoMove(m);
+        	 if(v > best){
+        		 best = v;
+        	 }
+        	 if(best < beta){
+        		 beta = best;
+        	 }
+        	 if(alpha >= beta){
+        		break;
+        	 }
+         }
+    	 if(best <= alpha){
+    		 tt.put(hash, new TTEntry(alpha, beta, depth, v, 1));
+    	 }
+    	 if(best >= beta){
+    		 tt.put(hash, new TTEntry(alpha, beta, depth, v, 2));
+    	 }
+    	 else{
+    		 tt.put(hash, new TTEntry(alpha, beta, depth, v, 0));
+    	 }
+    	 return best;
+    }
+    
 
 
 //    private int forwardDistance(int from, int to) {
