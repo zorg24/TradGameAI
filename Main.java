@@ -5,6 +5,7 @@ public class Main {
             a = new Agent("p2");
         else
             a = new Agent();
+
         a.playGame();
     }
 }

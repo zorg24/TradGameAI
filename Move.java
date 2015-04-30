@@ -24,4 +24,11 @@ public class Move {
         from = m.from;
         to = m.to;
     }
+
+    @Override
+    public int hashCode() {
+        int result = from;
+        result = 31 * result + to;
+        return result;
+    }
 }

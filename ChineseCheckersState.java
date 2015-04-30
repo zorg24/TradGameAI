@@ -12,7 +12,7 @@ public class ChineseCheckersState {
 
     public int blah = 0;
     public int turnNumber = 0;
-    Comparator<Move> moveComparator = (Comparator.comparing((Move m) -> forwardDistance(m))).reversed();
+//    Comparator<Move> moveComparator = (Comparator.comparing((Move m) -> forwardDistance(m))).reversed();
     // Put all valid moves into the vector of moves passed in by reference
     public void getMoves(ArrayList<Move> moves) {
         // WARNING: This function must not return duplicate moves
@@ -24,13 +24,19 @@ public class ChineseCheckersState {
                 getJumps(moveQueue, i);
                 getMovesSingleStep(moveQueue, i);
                 for (Move move : moveQueue) {
-                    if (forwardDistance(move) >= 0)
+                    if (forwardDistance(move) > 0)
                         moves.add(move);
                 }
-                // Need to add jump moves
             }
         }
-        Collections.sort(moves, moveComparator);
+
+//        if (moves.size() != 0) {
+////            System.err.println("No forward moves");
+//            for (Move move : moveQueue)
+//                if (forwardDistance(move) == 0)
+//                    moves.add(move);
+//        }
+//        Collections.sort(moves, moveComparator);
     }
 
     private int forwardDistance(Move move) {
