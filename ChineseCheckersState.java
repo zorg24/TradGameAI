@@ -30,10 +30,10 @@ public class ChineseCheckersState {
                 // Need to add jump moves
             }
         }
-        Collections.sort(moves, moveComparator);
+       // Collections.sort(moves, moveComparator);
     }
 
-    private int forwardDistance(Move move) {
+    public int forwardDistance(Move move) {
         int fromRow = move.from / 9;
         int toRow = move.to / 9;
         int fromCol = move.from % 9;

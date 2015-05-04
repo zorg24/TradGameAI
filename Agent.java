@@ -151,7 +151,8 @@ public class Agent {
         }
         for (; !timer.isDone(); d++) {
         	tt.clear();
-            minimax(state, d, state.getCurrentPlayer(), m, timer, alpha, beta);
+            //minimax(state, d, state.getCurrentPlayer(), m, timer, alpha, beta);
+        	m = UCB1();
         }
         System.err.println("The depth is " + d);
         state.turnNumber ++;
@@ -406,6 +407,8 @@ public class Agent {
         return v;
     }
    */
+
+    
     private int max2(ChineseCheckersState state, int depth, Move best_move, Alarm timer, int alpha, int beta) {
     	nodeVisited ++;
     	long hash = state.getHash();
@@ -533,6 +536,67 @@ public class Agent {
     		 tt.put(hash, new TTEntry(alpha, beta, depth, v, 0));
     	 }
     	 return best;
+    }
+    
+    public static int totalSamples;
+    private Move UCB1(){
+    	ArrayList<Move> mov = new ArrayList<Move>();
+    	ArrayList<MoveHolder> movHold = new ArrayList<MoveHolder>();
+        state.getMoves(mov);
+        for (Move m : mov) {
+        	int a = randomHelper(m);
+        	for(MoveHolder movH : movHold){
+        		if(movH.getMove().equals(m)){
+        			totalSamples ++;
+        			movH.addScore(a);
+        		}
+        		else{
+        			totalSamples ++;
+        			movHold.add(new MoveHolder(m, a));
+        		}
+        	}
+        }
+        MoveHolder movHolderA = movHold.get(0);
+        for(MoveHolder movH: movHold){
+        	if(movH.getScore() > movHolderA.getScore()){
+        		movHolderA = movH;
+        	}
+        }
+    	
+    	return movHolderA.getMove();
+    }
+    
+    private int randomHelper(Move movie){
+    	state.applyMove(movie);
+    	if(state.gameOver()){
+    		if(state.winner() == 1){
+    			return 1;
+    		}
+    		else{
+    			return 0;
+    		}
+    	}
+    	ArrayList<Move> mov = new ArrayList<Move>();
+    	state.getMoves(mov);
+    	double b= Math.random();
+    	if(b > .1){
+    		Move forwMove = mov.get(0);
+    		for(Move m : mov){
+    			if(state.forwardDistance(m) > state.forwardDistance(forwMove)){
+    				forwMove = m;
+    			}
+    		}
+    		int num =  randomHelper(forwMove);
+    		//state.undoMove(movie);
+    		return num;
+    	}
+    	else{
+        	int a = (int)(Math.random() * mov.size());
+        	Move aMove = mov.get(a);
+        	int num =  randomHelper(aMove);
+        	//state.undoMove(movie);
+        	return num;
+    	}
     }
     
 
