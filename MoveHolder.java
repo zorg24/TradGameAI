@@ -1,13 +1,18 @@
+import java.util.ArrayList;
+
 
 public class MoveHolder {
 	private Move myMove;
 	private double myScore;
 	private int times;
+	private ArrayList<Double> scores;
 	
-	public MoveHolder(Move aMove, int aScore){
+	public MoveHolder(Move aMove, double compScore, double theScore){
 		myMove = aMove;
-		myScore = aScore;
+		myScore = compScore;
 		times = 1;
+		scores = new ArrayList<Double>();
+		scores.add(theScore);
 	}
 	
 	public double getScore(){
@@ -18,10 +23,17 @@ public class MoveHolder {
 		return myMove;
 	}
 	
-	public void addScore(int aScore){
-		times ++;
-		myScore = (myScore + Math.sqrt((2 * Math.log(Agent.totalSamples) / times)));
-		myScore = myScore / times;
+	public void computeScore(){
+		int temp = 0;
+		for (double s : scores) {
+			temp += s;
+		}
+		myScore = (temp / scores.size() + Math.sqrt((2 * Math.log(Agent.totalSamples) / scores.size())));
+	}
+	
+	public void addScore(double score){
+		times++;
+		scores.add(score);
 	}
 	
 	public int times(){
