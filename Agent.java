@@ -457,34 +457,49 @@ public class Agent {
 	}
 
 	private int randomHelper(Move movie) {
-		state.applyMove(movie);
-		if (state.gameOver()) {
-			if (state.winner() == 1) {
-				return 1;
+		ChineseCheckersState s = new ChineseCheckersState(state);
+		s.applyMove(movie);
+		ArrayList<Move> moves = new ArrayList<>();
+		while (!s.gameOver()) {
+			if (s.gameOver()) {
+				if (s.winner() == 1)
+					return 1;
+				else
+					return 0;
+			}
+			s.getMoves(moves);
+			if (Math.random() > 0.1) {
+				Move bestMove = moves.get(0);
+				for (Move m : moves)
+					if (s.forwardDistance(m) > s.forwardDistance(bestMove))
+						bestMove = m;
+				s.applyMove(bestMove);
 			} else {
-				return 0;
+				s.applyMove(moves.get((int) (Math.random() * moves.size())));
 			}
 		}
-		ArrayList<Move> mov = new ArrayList<Move>();
-		state.getMoves(mov);
-		double b = Math.random();
-		if (b > .1) {
-			Move forwMove = mov.get(0);
-			for (Move m : mov) {
-				if (state.forwardDistance(m) > state.forwardDistance(forwMove)) {
-					forwMove = m;
-				}
+		return -1;
+	}
+
+	private int randomHelper2(Move move) {
+		ChineseCheckersState s = new ChineseCheckersState(state);
+		s.applyMove(move);
+		ArrayList<Move> moves = new ArrayList<>();
+		for (int i = 0; i < 50; i++) {
+			if (s.gameOver())
+				return s.eval();
+			s.getMoves(moves);
+			if (Math.random() > 0.1) {
+				Move bestMove = moves.get(0);
+				for (Move m : moves)
+					if (s.forwardDistance(m) > s.forwardDistance(bestMove))
+						bestMove = m;
+				s.applyMove(bestMove);
+			} else {
+				s.applyMove(moves.get((int) (Math.random() * moves.size())));
 			}
-			int num = randomHelper(forwMove);
-			// state.undoMove(movie);
-			return num;
-		} else {
-			int a = (int) (Math.random() * mov.size());
-			Move aMove = mov.get(a);
-			int num = randomHelper(aMove);
-			// state.undoMove(movie);
-			return num;
 		}
+		return s.eval();
 	}
 
 	// private int forwardDistance(int from, int to) {

@@ -10,6 +10,11 @@ public class ChineseCheckersState {
         randomize();
     }
 
+    public ChineseCheckersState(ChineseCheckersState copyMe) {
+        board = Arrays.copyOf(copyMe.board, copyMe.board.length);
+        randomize();
+    }
+
     public int blah = 0;
     public int turnNumber = 0;
     Comparator<Move> moveComparator = (Comparator.comparing((Move m) -> forwardDistance(m))).reversed();
@@ -251,8 +256,8 @@ public class ChineseCheckersState {
                 hashTable[j][i] = rand.nextLong();
     		}
     	}
-        System.err.println(rand.toString());
-        System.err.println(Arrays.deepToString(hashTable));
+//        System.err.println(rand.toString());
+//        System.err.println(Arrays.deepToString(hashTable));
     }
     
     public long hashApply(Move aMove){
