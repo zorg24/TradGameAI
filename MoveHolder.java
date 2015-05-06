@@ -39,5 +39,13 @@ public class MoveHolder {
 	public int times(){
 		return times;
 	}
+	
+	public double getLastScore(){
+		double temp = 0;
+		for(double s : scores){
+			temp += s;
+		}
+		return (temp / scores.size());
+	}
 
 }

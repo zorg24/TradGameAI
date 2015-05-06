@@ -165,15 +165,19 @@ public class Agent {
 		}
 		//for (; !timer.isDone(); d++) {
 			tt.clear();
+			numTimes = 0 ;
 			// minimax(state, d, state.getCurrentPlayer(), m, timer, alpha,
 			// beta);
 			m = UCB1(timer);
 		//}
-		System.err.println("The depth is " + d);
+		//System.err.println("The depth is " + d);
 		state.turnNumber++;
-		System.err.println("The number of nodes visited is : " + nodeVisited);
+		//System.err.println("The number of nodes visited is : " + nodeVisited);
+		System.err.println("The number of sims done is " + numTimes);
 		return m;
 	}
+	
+	private int numTimes = 0;
 
 	private int minimax(ChineseCheckersState state, int depth, int playerNum,
 			Move best_move, Alarm timer, int alpha, int beta) {
@@ -183,118 +187,6 @@ public class Agent {
 			return min2(state, depth, best_move, timer, alpha, beta);
 		}
 	}
-
-	/*
-	 * private int max(ChineseCheckersState state, int depth, Move best_move,
-	 * Alarm timer, int alpha, int beta) { long hash = state.getHash();
-	 * nodeVisited ++; if (depth == 0 || state.gameOver() || timer.isDone()) {
-	 * return state.eval(); //int b = state.eval(); //return b; } int v =
-	 * Integer.MIN_VALUE; int best = Integer.MIN_VALUE; ArrayList<Move> mov =
-	 * new ArrayList<Move>(); state.getMoves(mov); for (Move m : mov) { hash =
-	 * state.applyMove(m); TTEntry ttEntry = tt.get(hash); if(ttEntry != null &&
-	 * ttEntry.getDepth() >= depth){ if(DEBUG){ int tempA = 0; int tempB = 0;
-	 * DEBUG = false; System.err.println(depth);
-	 * System.err.println(ttEntry.getDepth()); int score = max(state,
-	 * ttEntry.getDepth(), best_move, timer, tempA, tempB); if(tempA <=
-	 * ttEntry.getAlpha()){ System.err.println("Good");
-	 * System.err.println(tempA); System.err.println(ttEntry.getAlpha()); }
-	 * else{ System.err.println("Bad"); } if((tempB >= ttEntry.getBeta()) ||
-	 * ttEntry.getBeta() == Integer.MAX_VALUE){ System.err.println("Good"); }
-	 * else{ System.err.println("Bad"); System.err.println(tempB);
-	 * System.err.println(ttEntry.getBeta()); } } // if exact return that // if
-	 * upper current alpha > entry alpha // if lower current beta < entry beta
-	 * // then those get those values
-	 * 
-	 * //return if(ttEntry.getBound() == 0){ return ttEntry.getScore(); }
-	 * 
-	 * //if(ttEntry.getBound() == 1 && alpha > ttEntry.getAlpha()){
-	 * if(ttEntry.getBound() == 1 && alpha > ttEntry.getAlpha()){ alpha =
-	 * ttEntry.getScore(); }
-	 * 
-	 * //if(ttEntry.getBound() == 2 && beta < ttEntry.getBeta()){
-	 * if(ttEntry.getBound() == 2 && beta < ttEntry.getBeta()){ beta =
-	 * ttEntry.getScore(); } //if(ttEntry.getAlpha() > alpha){ // alpha =
-	 * ttEntry.getAlpha(); //} if(alpha >= beta){
-	 * //System.err.println("We are hitting this"); state.undoMove(m); return
-	 * ttEntry.getScore(); } } v = Math.max(v, min(state, depth - 1, junkMove,
-	 * timer, alpha, beta)); state.undoMove(m);
-	 * 
-	 * if(v > best){ best = v; }
-	 * 
-	 * //if( v > alpha ){ if(best > alpha){ best_move.set(m); //alpha = v; alpha
-	 * = best; } //if (v == beta or >, upper bound) //if (v == < alpha or > beta
-	 * ) exact //if (v == alpha or >alpha, upper bound
-	 * 
-	 * //upper if(v <= alpha ){ tt.put(hash, new TTEntry(alpha, beta, depth, v,
-	 * 1)); } //lower else if(v >= beta ){ tt.put(hash, new TTEntry(alpha, beta,
-	 * depth, v, 2)); } //exact else{ tt.put(hash, new TTEntry(alpha, beta,
-	 * depth, v, 0)); }
-	 * 
-	 * else(v > alpha && v < beta){ tt.put(hash, new TTEntry(alpha, beta, depth,
-	 * v, 0)); }
-	 * 
-	 * if(v >= beta){ tt.put(hash, new TTEntry(alpha, beta, depth, v, 1)); }
-	 * else if(v <= alpha){ tt.put(hash, new TTEntry(alpha, beta, depth, v, 2));
-	 * } else{ tt.put(hash, new TTEntry(alpha, beta, depth, v, 0)); }
-	 * 
-	 * //tt.put(hash, new TTEntry(alpha, beta, depth, v)); if(beta <= alpha){
-	 * if(v >= beta){ tt.put(hash, new TTEntry(alpha, beta, depth, v, 1)); }
-	 * else if(v <= alpha){ tt.put(hash, new TTEntry(alpha, beta, depth, v, 2));
-	 * } else{ tt.put(hash, new TTEntry(alpha, beta, depth, v, 0)); }
-	 * //System.err.println("We are hitting this"); return v; }
-	 * 
-	 * } if(v >= beta){ tt.put(hash, new TTEntry(alpha, beta, depth, v, 1)); }
-	 * else if(v <= alpha){ tt.put(hash, new TTEntry(alpha, beta, depth, v, 2));
-	 * } else{ tt.put(hash, new TTEntry(alpha, beta, depth, v, 0)); } return v;
-	 * }
-	 * 
-	 * private int min(ChineseCheckersState state, int depth, Move best_move,
-	 * Alarm timer, int alpha, int beta) { long hash = state.getHash();
-	 * nodeVisited ++; if (depth == 0 || state.gameOver() || timer.isDone()) {
-	 * return state.eval(); //int b = state.eval(); //return b; } int best =
-	 * Integer.MAX_VALUE; int v = Integer.MAX_VALUE; ArrayList<Move> mov = new
-	 * ArrayList<Move>(); state.getMoves(mov); for (Move m : mov) { hash =
-	 * state.applyMove(m); TTEntry ttEntry = tt.get(hash); if(ttEntry != null &&
-	 * ttEntry.getDepth() >= depth){
-	 * 
-	 * if(ttEntry.getBound() == 0){ return ttEntry.getScore(); }
-	 * 
-	 * if(ttEntry.getBound() == 1 && alpha > ttEntry.getAlpha()){ alpha =
-	 * ttEntry.getScore(); }
-	 * 
-	 * if(ttEntry.getBound() == 2 && beta < ttEntry.getBeta()){ beta =
-	 * ttEntry.getScore(); }
-	 * 
-	 * 
-	 * 
-	 * //if(ttEntry.getBeta() < beta ){
-	 * //System.err.println("We are hitting this"); // beta = ttEntry.getBeta();
-	 * //}
-	 * 
-	 * if(alpha >= beta){ //System.err.println("We are hitting this");
-	 * state.undoMove(m); return ttEntry.getScore(); } }
-	 * //System.err.println("We are hitting this"); v = Math.min(v, max(state,
-	 * depth - 1, junkMove, timer, alpha, beta)); state.undoMove(m); if (v <
-	 * best){ best = v; } //beta = Math.min(v, beta); beta = Math.min(best,
-	 * beta); if(v >= beta){ tt.put(hash, new TTEntry(alpha, beta, depth, v,
-	 * 1)); } else if(v <= alpha){ tt.put(hash, new TTEntry(alpha, beta, depth,
-	 * v, 2)); } else{ tt.put(hash, new TTEntry(alpha, beta, depth, v, 0)); }
-	 * 
-	 * 
-	 * if(v > alpha && v < beta){ tt.put(hash, new TTEntry(alpha, beta, depth,
-	 * v, 0)); } //upper else if(v == alpha || v < alpha ){ tt.put(hash, new
-	 * TTEntry(alpha, beta, depth, v, 1)); } //lower else if(v == beta || v >
-	 * beta ){ tt.put(hash, new TTEntry(alpha, beta, depth, v, 2)); } //
-	 * tt.put(hash, new TTEntry(alpha, beta, depth, v)); if(beta <= alpha){ if(v
-	 * >= beta){ tt.put(hash, new TTEntry(alpha, beta, depth, v, 1)); } else
-	 * if(v <= alpha){ tt.put(hash, new TTEntry(alpha, beta, depth, v, 2)); }
-	 * else{ tt.put(hash, new TTEntry(alpha, beta, depth, v, 0)); } return v; }
-	 * 
-	 * } if(v >= beta){ tt.put(hash, new TTEntry(alpha, beta, depth, v, 1)); }
-	 * else if(v <= alpha){ tt.put(hash, new TTEntry(alpha, beta, depth, v, 2));
-	 * } else{ tt.put(hash, new TTEntry(alpha, beta, depth, v, 0)); } return v;
-	 * }
-	 */
 
 	private int max2(ChineseCheckersState state, int depth, Move best_move,
 			Alarm timer, int alpha, int beta) {
@@ -430,7 +322,7 @@ public class Agent {
 		ArrayList<Move> mov = new ArrayList<Move>();
 		state.getMoves(mov);
 		for (Move m : mov) {
-			int a = randomHelper(m);
+			int a = randomHelper2(m);
 			double b = (a + Math.sqrt((2 * Math.log(totalSamples) / 1)));
 			movHold.add(new MoveHolder(m, b, a));
 		}
@@ -441,14 +333,18 @@ public class Agent {
 					movHolderA = movH;
 				}
 			}
-			int a = randomHelper(movHolderA.getMove());
+			int a = randomHelper2(movHolderA.getMove());
 			movHolderA.addScore(a);
 			movHolderA.computeScore();
 		}
 		
 		MoveHolder movHolderA = movHold.get(0);
+		System.err.println(movHold.size());
 		for (MoveHolder movH : movHold) {
-			if (movH.getScore() > movHolderA.getScore()) {
+			System.err.println("The values of the moves are " + movH.getLastScore());
+			if (movH.getLastScore() > movHolderA.getLastScore()) {
+				System.err.println("The one being compared is" + movH.getLastScore());
+				System.err.println("The one currently held is" + movHolderA.getLastScore());
 				movHolderA = movH;
 			}
 		}
@@ -461,21 +357,25 @@ public class Agent {
 		s.applyMove(movie);
 		ArrayList<Move> moves = new ArrayList<>();
 		while (!s.gameOver()) {
-			if (s.gameOver()) {
-				if (s.winner() == 1)
-					return 1;
-				else
-					return 0;
-			}
 			s.getMoves(moves);
 			if (Math.random() > 0.1) {
 				Move bestMove = moves.get(0);
-				for (Move m : moves)
-					if (s.forwardDistance(m) > s.forwardDistance(bestMove))
+				for (Move m : moves){
+					if (s.forwardDistance(m) > s.forwardDistance(bestMove)){
 						bestMove = m;
+					}
+				}
 				s.applyMove(bestMove);
 			} else {
 				s.applyMove(moves.get((int) (Math.random() * moves.size())));
+			}
+		}
+		if (s.gameOver()) {
+			if (s.winner() == 1){
+				return 1;
+			}
+			else{
+				return 0;
 			}
 		}
 		return -1;
@@ -485,9 +385,11 @@ public class Agent {
 		ChineseCheckersState s = new ChineseCheckersState(state);
 		s.applyMove(move);
 		ArrayList<Move> moves = new ArrayList<>();
-		for (int i = 0; i < 50; i++) {
-			if (s.gameOver())
+		numTimes++ ;
+		for (int i = 0; i < 200; i++) {
+			if (s.gameOver()){
 				return s.eval();
+			}
 			s.getMoves(moves);
 			if (Math.random() > 0.1) {
 				Move bestMove = moves.get(0);
