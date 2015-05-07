@@ -1,16 +1,14 @@
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Scanner;
-import java.util.Random;
-import java.util.Queue;
 import java.util.LinkedList;
+import java.util.function.Function;
 
 public class Agent {
 	LinkedList<Move> p1Queue;
 	LinkedList<Move> p2Queue;
 	int nodeVisited = 0;
 
-	public Agent() {
+	public void init() {
 		p1Queue = new LinkedList<Move>();
 		p2Queue = new LinkedList<Move>();
 
@@ -26,13 +24,26 @@ public class Agent {
 		p2Queue.addLast(new Move(58, 49));
 		p2Queue.addLast(new Move(80, 40));
 
-		name = "MyName";
 		stdin = new Scanner(System.in);
 	}
 
-	public Agent(String name_) {
-		name = name_;
-		stdin = new Scanner(System.in);
+	public Agent() {
+		init();
+		name = "MyName";
+	}
+
+	Function<Move, Integer> playoutStrategy;
+
+	public Agent(String name, String playout) {
+		init();
+		this.name = name;
+		switch (playout) {
+			case "a":
+				playoutStrategy = this::randomHelper; break;
+			case "b":
+			default:
+				playoutStrategy = this::randomHelper2; break;
+		}
 	}
 
 	public void playGame() {
@@ -144,7 +155,7 @@ public class Agent {
 		int alpha = Integer.MIN_VALUE;
 		int beta = Integer.MAX_VALUE;
 		int d = 1;
-		System.err.println(turnNumber);
+//		System.err.println(turnNumber);
 		if (turnNumber < 5) {
 			if (state.getCurrentPlayer() == 1) {
 				if (state.isValidMove(p1Queue.getFirst())) {
@@ -173,7 +184,7 @@ public class Agent {
 		//System.err.println("The depth is " + d);
 		state.turnNumber++;
 		//System.err.println("The number of nodes visited is : " + nodeVisited);
-		System.err.println("The number of sims done is " + numTimes);
+		System.err.println("The number of sims done is " + totalSamples);
 		return m;
 	}
 	
@@ -318,11 +329,12 @@ public class Agent {
 	public static int totalSamples;
 
 	private Move UCB1(Alarm timer) {
+		totalSamples = 0;
 		ArrayList<MoveHolder> movHold = new ArrayList<MoveHolder>();
 		ArrayList<Move> mov = new ArrayList<Move>();
 		state.getMoves(mov);
 		for (Move m : mov) {
-			int a = randomHelper2(m);
+			int a = playoutStrategy.apply(m);
 			double b = (a + Math.sqrt((2 * Math.log(totalSamples) / 1)));
 			movHold.add(new MoveHolder(m, b, a));
 		}
@@ -333,18 +345,18 @@ public class Agent {
 					movHolderA = movH;
 				}
 			}
-			int a = randomHelper2(movHolderA.getMove());
+			int a = playoutStrategy.apply(movHolderA.getMove());
 			movHolderA.addScore(a);
 			movHolderA.computeScore();
 		}
 		
 		MoveHolder movHolderA = movHold.get(0);
-		System.err.println(movHold.size());
+//		System.err.println(movHold.size());
 		for (MoveHolder movH : movHold) {
-			System.err.println("The values of the moves are " + movH.getLastScore());
-			if (movH.getLastScore() > movHolderA.getLastScore()) {
-				System.err.println("The one being compared is" + movH.getLastScore());
-				System.err.println("The one currently held is" + movHolderA.getLastScore());
+//			System.err.println("The values of the moves are " + movH.getAverageScore());
+			if (movH.getScore() > movHolderA.getScore()) {
+//				System.err.println("The one being compared is" + movH.getAverageScore());
+//				System.err.println("The one currently held is" + movHolderA.getAverageScore());
 				movHolderA = movH;
 			}
 		}
@@ -352,16 +364,18 @@ public class Agent {
 		return movHolderA.getMove();
 	}
 
-	private int randomHelper(Move movie) {
+	private int randomHelper(Move move) {
+		totalSamples++;
+		int me = state.getCurrentPlayer();
 		ChineseCheckersState s = new ChineseCheckersState(state);
-		s.applyMove(movie);
+		s.applyMove(move);
 		ArrayList<Move> moves = new ArrayList<>();
 		while (!s.gameOver()) {
 			s.getMoves(moves);
 			if (Math.random() > 0.1) {
 				Move bestMove = moves.get(0);
-				for (Move m : moves){
-					if (s.forwardDistance(m) > s.forwardDistance(bestMove)){
+				for (Move m : moves) {
+					if (s.forwardDistance(m) > s.forwardDistance(bestMove)) {
 						bestMove = m;
 					}
 				}
@@ -370,23 +384,21 @@ public class Agent {
 				s.applyMove(moves.get((int) (Math.random() * moves.size())));
 			}
 		}
-		if (s.gameOver()) {
-			if (s.winner() == 1){
-				return 1;
-			}
-			else{
-				return 0;
-			}
+		if (s.winner() == me) {
+			return 1;
 		}
-		return -1;
+		else {
+			return 0;
+		}
 	}
 
 	private int randomHelper2(Move move) {
+		totalSamples++;
 		ChineseCheckersState s = new ChineseCheckersState(state);
 		s.applyMove(move);
 		ArrayList<Move> moves = new ArrayList<>();
 		numTimes++ ;
-		for (int i = 0; i < 200; i++) {
+		for (int i = 0; i < 50; i++) {
 			if (s.gameOver()){
 				return s.eval();
 			}
