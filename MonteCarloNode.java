@@ -20,6 +20,14 @@ public class MonteCarloNode {
 		samples = 0;
 	}
 	
+	public MonteCarloNode(int numChild, MoveHolder aMove, int location, int pay){
+		numChildren = numChild;
+		myMove = aMove;
+		startLocation = location;
+		payoff += pay;
+		samples = 1;
+	}
+	
 	public MoveHolder getMove(){
 		return myMove;
 	}
@@ -37,8 +45,12 @@ public class MonteCarloNode {
 		samples++;
 	}
 	
-	public int getValue(){
+	public int getAvgValue(){
 		return payoff / samples;
+	}
+	
+	public double getValue(){
+		return (payoff / samples + Math.sqrt((2 * Math.log(Agent.totalSamples) / samples)));
 	}
 	
 	public int totalVal(){
