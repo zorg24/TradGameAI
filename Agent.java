@@ -1,5 +1,8 @@
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Scanner;
+import java.util.Random;
+import java.util.Queue;
 import java.util.LinkedList;
 import java.util.function.Function;
 
@@ -155,7 +158,7 @@ public class Agent {
 		int alpha = Integer.MIN_VALUE;
 		int beta = Integer.MAX_VALUE;
 		int d = 1;
-//		System.err.println(turnNumber);
+		System.err.println(turnNumber);
 		if (turnNumber < 5) {
 			if (state.getCurrentPlayer() == 1) {
 				if (state.isValidMove(p1Queue.getFirst())) {
@@ -365,7 +368,10 @@ public class Agent {
 		return movHolderA.getMove();
 	}
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> f9aaae6dc0bae4837a8da5aa16f6fe3a0ce88c94
 	private int randomHelper(Move move) {
 		totalSamples++;
 		int me = state.getCurrentPlayer();
