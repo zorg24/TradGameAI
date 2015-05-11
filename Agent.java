@@ -1,5 +1,8 @@
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Scanner;
+import java.util.Random;
+import java.util.Queue;
 import java.util.LinkedList;
 import java.util.function.Function;
 
@@ -155,7 +158,7 @@ public class Agent {
 		int alpha = Integer.MIN_VALUE;
 		int beta = Integer.MAX_VALUE;
 		int d = 1;
-//		System.err.println(turnNumber);
+		System.err.println(turnNumber);
 		if (turnNumber < 5) {
 			if (state.getCurrentPlayer() == 1) {
 				if (state.isValidMove(p1Queue.getFirst())) {
@@ -414,6 +417,122 @@ public class Agent {
 			}
 		}
 		return s.eval();
+	}
+	
+	private ArrayList<MonteCarloNode> MCTree = new ArrayList<MonteCarloNode>();
+	public void setTree(){
+		ArrayList<Move> mov = new ArrayList<Move>();
+		state.getMoves(mov);
+		MCTree.add(new MonteCarloNode(mov.size(), null, 1));
+		for(int i = 1; i < mov.size(); i++){
+			MCTree.add(i, null);
+		}
+		ArrayList<Move> temp = new ArrayList<Move>();
+		int j = 1; 
+		for (Move m : mov) {
+			int a = randomHelper2(m);
+			double b = (a + Math.sqrt((2 * Math.log(totalSamples) / 1)));
+			state.applyMove(m);
+			state.getMoves(temp);
+			MCTree.add(j , new MonteCarloNode(temp.size(), new MoveHolder(m, b, a), MCTree.size() - 1));
+			for(int i = 0; i < temp.size(); i++){
+				MCTree.add(i, null);
+			}
+			state.undoMove(m);
+			j++;
+		}
+	}
+	
+	public void chooseNodeA(){
+		MonteCarloNode bestNode = MCTree.get(1);
+		//Check the children not the entire thing!!!!!
+		for(int i = MCTree.get(0).getStartLocation(); i < MCTree.get(0).getChildren() + MCTree.get(0).getStartLocation() ; i++){
+			if(bestNode.getMove().getScore() > MCTree.get(i).getMove().getScore()){
+				bestNode = MCTree.get(i);
+			}
+		}
+		if(MCTree.get(bestNode.getStartLocation()) == null){
+			expand(bestNode, MCTree.get(0));
+		}
+		else{
+			chooseNodeB(bestNode);
+		}
+	}
+	
+	public void chooseNodeB(MonteCarloNode aNode){
+		MonteCarloNode bestNode = MCTree.get(aNode.getStartLocation());
+		//Check the children not the entire thing!!!!!
+		for(int i = aNode.getStartLocation(); i < aNode.getChildren() + aNode.getStartLocation() ; i++){
+			if(bestNode.getMove().getScore() > MCTree.get(i).getMove().getScore()){
+				bestNode = MCTree.get(i);
+			}
+		}
+		if(MCTree.get(bestNode.getStartLocation()) == null){
+			state.applyMove(bestNode.getMove().getMove());
+			expand(bestNode, aNode);
+			state.undoMove(bestNode.getMove().getMove());
+		}
+		else{
+			state.applyMove(bestNode.getMove().getMove());
+			chooseNodeB(bestNode);
+			state.undoMove(bestNode.getMove().getMove());
+		}
+	}
+	
+	public void expand(MonteCarloNode theNode, MonteCarloNode theParent){
+		ArrayList<Move> mov = new ArrayList<Move>();
+		state.getMoves(mov);
+		int j = theNode.getStartLocation();
+		for(Move m : mov){
+			int a = randomHelper2(m);
+			double b = (a + Math.sqrt((2 * Math.log(totalSamples) / 1)));
+			state.applyMove(m);
+			MCTree.add(j , new MonteCarloNode(mov.size(), new MoveHolder(m, b, a), MCTree.size() - 1));
+			theNode.addValue(a);
+			theParent.addValue(a);
+			for(int i = 0; i < mov.size(); i++){
+				MCTree.add(i, null);
+			}
+			state.undoMove(m);
+			j++;
+		}
+	}
+	
+	private Move UCB1Tree(Alarm timer, ArrayList<MonteCarloNode> theTree) {
+		ArrayList<MoveHolder> movHold = new ArrayList<MoveHolder>();
+		ArrayList<Move> mov = new ArrayList<Move>();
+		state.getMoves(mov);
+		theTree.add(mov.size(), null);
+		
+		for (Move m : mov) {
+			int a = randomHelper2(m);
+			double b = (a + Math.sqrt((2 * Math.log(totalSamples) / 1)));
+			//movHold.add(new MoveHolder(m, b, a));
+		}
+		while(!timer.isDone()){
+			MoveHolder movHolderA = movHold.get(0);
+			for(MoveHolder movH : movHold){
+				if(movH.getScore() > movHolderA.getScore()){
+					movHolderA = movH;
+				}
+			}
+			int a = randomHelper2(movHolderA.getMove());
+			movHolderA.addScore(a);
+			movHolderA.computeScore();
+		}
+		
+		MoveHolder movHolderA = movHold.get(0);
+		System.err.println(movHold.size());
+		for (MoveHolder movH : movHold) {
+			System.err.println("The values of the moves are " + movH.getLastScore());
+			if (movH.getLastScore() > movHolderA.getLastScore()) {
+				System.err.println("The one being compared is" + movH.getLastScore());
+				System.err.println("The one currently held is" + movHolderA.getLastScore());
+				movHolderA = movH;
+			}
+		}
+
+		return movHolderA.getMove();
 	}
 
 	// private int forwardDistance(int from, int to) {
