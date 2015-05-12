@@ -28,6 +28,14 @@ public class MonteCarloNode {
 		samples = 1;
 	}
 	
+	public void setChildren(int child){
+		numChildren = child;
+	}
+	
+	public void startLocation(int location){
+		startLocation = location;
+	}
+	
 	public MoveHolder getMove(){
 		return myMove;
 	}
