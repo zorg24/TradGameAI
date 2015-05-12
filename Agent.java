@@ -368,10 +368,6 @@ public class Agent {
 		return movHolderA.getMove();
 	}
 
-<<<<<<< HEAD
-
-=======
->>>>>>> f9aaae6dc0bae4837a8da5aa16f6fe3a0ce88c94
 	private int randomHelper(Move move) {
 		totalSamples++;
 		int me = state.getCurrentPlayer();
