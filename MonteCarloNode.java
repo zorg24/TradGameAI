@@ -7,6 +7,7 @@ public class MonteCarloNode {
 	private int startLocation;
 	public int payoff;
 	public int samples;
+	public MonteCarloNode parent = null;
 	//private ArrayList<Integer> myLocations;
 	//first child location
 	//total payoff
@@ -26,6 +27,19 @@ public class MonteCarloNode {
 		startLocation = location;
 		payoff += pay;
 		samples = 1;
+	}
+	
+	public MonteCarloNode(int numChild, MoveHolder aMove, int location, int pay, MonteCarloNode par){
+		numChildren = numChild;
+		myMove = aMove;
+		startLocation = location;
+		payoff += pay;
+		samples = 1;
+		parent = par;
+	}
+	
+	public MonteCarloNode getParent(){
+		return parent;
 	}
 	
 	public void setChildren(int child){
@@ -58,7 +72,7 @@ public class MonteCarloNode {
 	}
 	
 	public double getValue(){
-		return (payoff / samples + Math.sqrt((2 * Math.log(Agent.totalSamples) / samples)));
+		return (payoff / samples + 3 * Math.sqrt((Math.log(Agent.totalSamples) / samples)));
 	}
 	
 	public int totalVal(){

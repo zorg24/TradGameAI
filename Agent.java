@@ -404,6 +404,9 @@ public class Agent {
 				return s.eval();
 			}
 			s.getMoves(moves);
+			if(moves.isEmpty()){
+				return s.eval();
+			}
 			if (Math.random() > 0.1) {
 				Move bestMove = moves.get(0);
 				for (Move m : moves)
@@ -435,7 +438,7 @@ public class Agent {
 			double b = (a + Math.sqrt((2 * Math.log(totalSamples) / 1)));
 			state.applyMove(m);
 			state.getMoves(temp);
-			MonteCarloNode MCNode2 = new MonteCarloNode(temp.size(), new MoveHolder(m, b, a), MCTree.size(), a);
+			MonteCarloNode MCNode2 = new MonteCarloNode(temp.size(), new MoveHolder(m, b, a), MCTree.size(), a, MCTree.get(0));
 			MCTree.set(j, MCNode2);
 			for(int i = 0; i < temp.size(); i++){
 				MCTree.add(null);
@@ -554,10 +557,15 @@ public class Agent {
 			double b = (a + Math.sqrt((2 * Math.log(totalSamples) / 1)));
 			state.applyMove(m);
 			state.getMoves(temp);
-			MonteCarloNode MCNode2 = new MonteCarloNode(temp.size(), new MoveHolder(m, b, a), MCTree.size() - 1, a);
+			MonteCarloNode MCNode2 = new MonteCarloNode(temp.size(), new MoveHolder(m, b, a), MCTree.size() - 1, a, theParent);
 			MCTree.set(j, MCNode2);
+			MonteCarloNode atm = theParent;
+			while(atm != null){
+				atm.addValue(a);
+				atm = atm.getParent();
+			}
 			theNode.setChildren(mov.size());
-			theParent.addValue(a);
+			//theParent.addValue(a);
 			for(int i = 0; i < temp.size() ; i++){
 				MCTree.add(null);
 			}
