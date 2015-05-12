@@ -1,9 +1,6 @@
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Scanner;
-import java.util.Random;
-import java.util.Queue;
 import java.util.LinkedList;
+import java.util.Scanner;
 import java.util.function.Function;
 
 public class Agent {
