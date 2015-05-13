@@ -222,11 +222,11 @@ public class ChineseCheckersState {
     int distance = 0;
 
     public int eval() {
-/*        int winner = winner();
+        int winner = winner();
         if (currentPlayer == winner)
             return Integer.MAX_VALUE;
         else if (3 - currentPlayer == winner)
-            return Integer.MIN_VALUE;*/
+            return Integer.MIN_VALUE;
 
         int p1d = 0;
         int p2d = 0;

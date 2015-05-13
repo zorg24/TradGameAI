@@ -352,12 +352,8 @@ public class Agent {
 		}
 		
 		MoveHolder movHolderA = movHold.get(0);
-//		System.err.println(movHold.size());
 		for (MoveHolder movH : movHold) {
-//			System.err.println("The values of the moves are " + movH.getAverageScore());
 			if (movH.getScore() > movHolderA.getScore()) {
-//				System.err.println("The one being compared is" + movH.getAverageScore());
-//				System.err.println("The one currently held is" + movHolderA.getAverageScore());
 				movHolderA = movH;
 			}
 		}
@@ -399,7 +395,7 @@ public class Agent {
 		s.applyMove(move);
 		ArrayList<Move> moves = new ArrayList<>();
 		numTimes++ ;
-		for (int i = 0; i < 50; i++) {
+		for (int i = 0; i < 5; i++) {
 			if (s.gameOver()){
 				return s.eval();
 			}
@@ -435,10 +431,9 @@ public class Agent {
 		int j = 1; 
 		for (Move m : mov) {
 			int a = randomHelper2(m);
-			double b = (a + Math.sqrt((2 * Math.log(totalSamples) / 1)));
 			state.applyMove(m);
 			state.getMoves(temp);
-			MonteCarloNode MCNode2 = new MonteCarloNode(temp.size(), new MoveHolder(m, b, a), MCTree.size(), a, MCTree.get(0));
+			MonteCarloNode MCNode2 = new MonteCarloNode(temp.size(), m, MCTree.size(), a, MCTree.get(0));
 			MCTree.set(j, MCNode2);
 			for(int i = 0; i < temp.size(); i++){
 				MCTree.add(null);
@@ -449,45 +444,22 @@ public class Agent {
 		return chooseNodeC(MCTree.get(0), timer);
 	}
 	
-/*	public Move chooseNodeA(Alarm timer){
-		MonteCarloNode bestNode = MCTree.get(1);
-		//Check the children not the entire thing!!!!!
-		for(int i = MCTree.get(0).getStartLocation(); i < MCTree.get(0).getChildren() + MCTree.get(0).getStartLocation() ; i++){
-			if(bestNode.getValue() > MCTree.get(i).getValue()){
-				bestNode = MCTree.get(i);
-			}
-		}
-		if(MCTree.get(bestNode.getStartLocation()) == null){
-			state.applyMove(bestNode.getMove().getMove());
-			expand(bestNode, MCTree.get(0));
-			Move a = chooseNodeC(bestNode, timer);
-			state.undoMove(bestNode.getMove().getMove());
-			return a;
-		}
-		else{
-			state.applyMove(bestNode.getMove().getMove());
-			Move a = chooseNodeC(bestNode, timer);
-			state.undoMove(bestNode.getMove().getMove());
-			return a;
-		}
-	}*/
-	
 	public void chooseNodeB(MonteCarloNode aNode, Alarm timer){
 		MonteCarloNode bestNode = MCTree.get(aNode.getStartLocation());
 		for(int i = aNode.getStartLocation(); i < aNode.getChildren() + aNode.getStartLocation() ; i++){
-			if(bestNode.getValue() > MCTree.get(i).getValue()){
+			if(MCTree.get(i).getValue() > bestNode.getValue()){
 				bestNode = MCTree.get(i);
 			}
 		}
 			if(MCTree.get(bestNode.getStartLocation()) == null){
-				state.applyMove(bestNode.getMove().getMove());
+				state.applyMove(bestNode.getMove2());
 				expand(bestNode, aNode);
-				state.undoMove(bestNode.getMove().getMove());
+				state.undoMove(bestNode.getMove2());
 			}
 			else{
-				state.applyMove(bestNode.getMove().getMove());
+				state.applyMove(bestNode.getMove2());
 				chooseNodeB(bestNode, timer);
-				state.undoMove(bestNode.getMove().getMove());
+				state.undoMove(bestNode.getMove2());
 			}
 	}
 	
@@ -495,57 +467,33 @@ public class Agent {
 		while(!timer.isDone()){
 			MonteCarloNode bestNode = MCTree.get(aNode.getStartLocation());
 			for(int i = aNode.getStartLocation(); i < aNode.getChildren() + aNode.getStartLocation() ; i++){
-				if(bestNode.getValue() > MCTree.get(i).getValue()){
+				if(MCTree.get(i).getValue() > bestNode.getValue()){
 					bestNode = MCTree.get(i);
 				}
 			}
 				if(MCTree.get(bestNode.getStartLocation()) == null){
-					state.applyMove(bestNode.getMove().getMove());
+					state.applyMove(bestNode.getMove2());
 					expand(bestNode, aNode);
-					state.undoMove(bestNode.getMove().getMove());
+					state.undoMove(bestNode.getMove2());
 				}
 				else{
-					state.applyMove(bestNode.getMove().getMove());
+					state.applyMove(bestNode.getMove2());
 					chooseNodeB(bestNode, timer);
-					state.undoMove(bestNode.getMove().getMove());
+					state.undoMove(bestNode.getMove2());
 				}
 		}
 		return chooseMove();
 	}
 	
 	public Move chooseMove(){
-		MonteCarloNode bestNode = MCTree.get(1);
+		MonteCarloNode bestNode = MCTree.get(MCTree.get(0).getStartLocation());
 		for(int i = MCTree.get(0).getStartLocation(); i < MCTree.get(0).getChildren() + MCTree.get(0).getStartLocation() ; i++){
-			if(bestNode.getAvgValue() > MCTree.get(i).getAvgValue()){
+			if(MCTree.get(i).getAvgValue() > bestNode.getAvgValue()){
 				bestNode = MCTree.get(i);
 			}
 		}
-		return bestNode.getMove().getMove();
+		return bestNode.getMove2();
 	}
-	
-/*	public void expand2(MonteCarloNode theNode, MonteCarloNode theParent){
-		//System.err.println("Getting to expand");
-		ArrayList<Move> mov = new ArrayList<Move>();
-		state.getMoves(mov);
-		int j = theNode.getStartLocation();
-		ArrayList<Move> temp = new ArrayList<Move>();
-		for(Move m : mov){
-			int a = randomHelper2(m);
-			double b = (a + Math.sqrt((2 * Math.log(totalSamples) / 1)));
-			state.applyMove(m);
-			state.getMoves(temp);
-			MonteCarloNode MCNode2 = new MonteCarloNode(temp.size(), new MoveHolder(m, b, a), MCTree.size() - 1, a);
-			MCTree.add(j, MCNode2);
-			theParent.addValue(a);
-			for(int i = MCNode2.getStartLocation(); i < temp.size() + MCNode2.getStartLocation() ; i++){
-				MCTree.add(i, null);
-			}
-			state.undoMove(m);
-			j++;
-		}
-		//System.err.println("J is " + (j - theNode.getStartLocation()));
-		//System.err.println("Should be " + theNode.getChildren());
-	}*/
 	
 	public void expand(MonteCarloNode theNode, MonteCarloNode theParent){
 		ArrayList<Move> mov = new ArrayList<Move>();
@@ -554,18 +502,16 @@ public class Agent {
 		ArrayList<Move> temp = new ArrayList<Move>();
 		for(Move m : mov){
 			int a = randomHelper2(m);
-			double b = (a + Math.sqrt((2 * Math.log(totalSamples) / 1)));
 			state.applyMove(m);
 			state.getMoves(temp);
-			MonteCarloNode MCNode2 = new MonteCarloNode(temp.size(), new MoveHolder(m, b, a), MCTree.size() - 1, a, theParent);
+			MonteCarloNode MCNode2 = new MonteCarloNode(temp.size(), m, MCTree.size(), a, theParent);
 			MCTree.set(j, MCNode2);
-			MonteCarloNode atm = theParent;
+			MonteCarloNode atm = MCNode2.getParent();
 			while(atm != null){
 				atm.addValue(a);
 				atm = atm.getParent();
 			}
 			theNode.setChildren(mov.size());
-			//theParent.addValue(a);
 			for(int i = 0; i < temp.size() ; i++){
 				MCTree.add(null);
 			}
