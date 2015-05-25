@@ -134,10 +134,11 @@ public class Agent {
 			}
 		}
 	}
-
+	public int myPlayer;
 	int turnNumber = 0;
 	public int cores = Runtime.getRuntime().availableProcessors();
 	private Move nextMove() {
+		 myPlayer = state.getCurrentPlayer();
 		// Somehow select your next move
 		// ArrayList<Move> moves = new ArrayList<Move>();
 		// state.getMoves(moves);
@@ -183,9 +184,9 @@ public class Agent {
 			//m = setTree(timer);
 		ArrayList<RootParallel> myRoots = new ArrayList<RootParallel>();
 		for(int i = 0; i < cores; i++){
-			//RootParallel aRoot = new RootParallel(timer, new ChineseCheckersState(state));
-			RootParallel aRoot = new RootParallel(timer, state);
-			aRoot.run();
+			RootParallel aRoot = new RootParallel(timer, new ChineseCheckersState(state));
+			//RootParallel aRoot = new RootParallel(timer, state);
+			//aRoot.run();
 			myRoots.add(aRoot);
 		}
 		
@@ -450,7 +451,14 @@ public class Agent {
 		s.applyMove(move);
 		ArrayList<Move> moves = new ArrayList<>();
 		numTimes++ ;
-		for (int i = 0; i < 5; i++) {
+		int z = 0;
+		if(myPlayer == 1){
+			z = 5;
+		}else{
+			z = 4;
+		}
+		
+		for (int i = 0; i < z; i++) {
 			if (s.gameOver()){
 				return s.eval() - (i * 2);
 			}
