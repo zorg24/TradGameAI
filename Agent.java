@@ -45,7 +45,7 @@ public class Agent {
 				playoutStrategy = this::randomHelper2; break;
 		}
 	}
-
+	public static int myPlayer;
 	public void playGame() {
 		// Identify myself
 		System.out.println("#name " + name);
@@ -138,6 +138,7 @@ public class Agent {
 	int turnNumber = 0;
 	public int cores = Runtime.getRuntime().availableProcessors();
 	private Move nextMove() {
+		 myPlayer = state.getCurrentPlayer();
 		// Somehow select your next move
 		// ArrayList<Move> moves = new ArrayList<Move>();
 		// state.getMoves(moves);
@@ -180,15 +181,13 @@ public class Agent {
 			// minimax(state, d, state.getCurrentPlayer(), m, timer, alpha,
 			// beta);
 			//m = UCB1(timer);
-			//m = setTree(timer);
-		ArrayList<RootParallel> myRoots = new ArrayList<RootParallel>();
+			m = setTree(timer);
+/*		ArrayList<RootParallel> myRoots = new ArrayList<RootParallel>();
 		for(int i = 0; i < cores; i++){
-			//RootParallel aRoot = new RootParallel(timer, new ChineseCheckersState(state));
 			RootParallel aRoot = new RootParallel(timer, state);
 			aRoot.run();
 			myRoots.add(aRoot);
 		}
-		
 		int doneInt = 0;
 		boolean notDone = true;
 		while(notDone){
@@ -202,40 +201,13 @@ public class Agent {
 				}
 			}
 		}
-		int start = 0;
 		MonteCarloNode bestMove = myRoots.get(0).getMove();
-		ArrayList<MonteCarloNode> tempTree = new ArrayList<MonteCarloNode>();
 		for(RootParallel r : myRoots){
-			if(start == 0){
-				for(int i = r.MCTree.get(0).getStartLocation(); i < r.MCTree.get(0).getChildren() + r.MCTree.get(0).getStartLocation(); i++){
-					System.err.println("This size is " + r.MCTree.size());
-					tempTree.add(r.MCTree.get(i));
-					start ++ ;
-				}
-			}
-			else{
-				for(int i = 0; i < r.MCTree.get(0).getChildren(); i++){
-					tempTree.get(i).payoff += r.MCTree.get(i).payoff;
-					tempTree.get(i).samples += r.MCTree.get(i).samples;
-				}
-			}
-			
-			
-			//System.err.println(r.getMove().getAvgValue());
-			//System.err.println(r.getMove().numSamples());
-			//if(r.getMove().getAvgValue() > bestMove.getAvgValue()){
-			//if(r.getMove().numSamples() > bestMove.numSamples()){
-				//bestMove = r.getMove();
-			//}
-		}
-		
-		for(int i = 0 ; i < tempTree.size(); i++){
-			if(tempTree.get(i).getAvgValue() > bestMove.getAvgValue()){
-				bestMove = tempTree.get(i);
+			if(r.getMove().getAvgValue() > bestMove.getAvgValue()){
+				bestMove = r.getMove();
 			}
 		}
-		
-		m = bestMove.getMove2();
+		m = bestMove.getMove2();*/
 		//}
 		//System.err.println("The depth is " + d);
 		state.turnNumber++;
@@ -450,7 +422,14 @@ public class Agent {
 		s.applyMove(move);
 		ArrayList<Move> moves = new ArrayList<>();
 		numTimes++ ;
-		for (int i = 0; i < 5; i++) {
+		int z = 0;
+		if(myPlayer == 1){
+			z = 5;
+		}else{
+			z = 4;
+		}
+		
+		for (int i = 0; i < z; i++) {
 			if (s.gameOver()){
 				return s.eval() - (i * 2);
 			}
@@ -543,10 +522,12 @@ public class Agent {
 	public Move chooseMove(){
 		MonteCarloNode bestNode = MCTree.get(MCTree.get(0).getStartLocation());
 		for(int i = MCTree.get(0).getStartLocation(); i < MCTree.get(0).getChildren() + MCTree.get(0).getStartLocation() ; i++){
+			//System.err.println(MCTree.get(i).numSamples());
 			if(MCTree.get(i).getAvgValue() > bestNode.getAvgValue()){
 				bestNode = MCTree.get(i);
 			}
 		}
+		System.err.println(totalSamples);
 		return bestNode.getMove2();
 	}
 	

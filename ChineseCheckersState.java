@@ -12,8 +12,7 @@ public class ChineseCheckersState {
 
     public ChineseCheckersState(ChineseCheckersState copyMe) {
         board = Arrays.copyOf(copyMe.board, copyMe.board.length);
-        currentPlayer = copyMe.getCurrentPlayer();
-        //randomize();
+        randomize();
     }
 
     public int blah = 0;
@@ -244,6 +243,7 @@ public class ChineseCheckersState {
         }
        // if (currentPlayer == 1) {
         if(getCurrentPlayer() == 1){	
+       // if(Agent.myPlayer == 1){
             return p1d - p2d;
         }
         return p2d - p1d;

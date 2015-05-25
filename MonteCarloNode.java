@@ -63,7 +63,7 @@ public class MonteCarloNode {
 	}
 	
 	public double getValue(){
-		return ((payoff / samples) + 10 * Math.sqrt((Math.log(Agent.totalSamples) / samples)));
+		return ((payoff / samples) + 100 * Math.sqrt((Math.log(Agent.totalSamples) / samples)));
 	}
 	
 	public int totalVal(){

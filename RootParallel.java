@@ -3,19 +3,16 @@ import java.util.ArrayList;
 
 public class RootParallel extends Thread {
 	private ChineseCheckersState state;
-	public ArrayList<MonteCarloNode> MCTree;
-	private Alarm timer2;
+	private ArrayList<MonteCarloNode> MCTree;
+	private Alarm timer;
 	public static int totalSamples;
 	private MonteCarloNode bestMove;
 	public boolean done;
 	
 	public RootParallel(Alarm time, ChineseCheckersState aState){
+		timer = time;
 		state = aState;
-		timer2 = time;
-		//state = new ChineseCheckersState(aState);
 		MCTree = new ArrayList<MonteCarloNode>();
-		done = false;
-		//this.start();
 	}
 	
 	public MonteCarloNode getMove(){
@@ -23,32 +20,30 @@ public class RootParallel extends Thread {
 	}
 	
 	public void run(){
-		totalSamples = 0;
-		MCTree.clear();
-		ArrayList<Move> mov = new ArrayList<Move>();
-		state.getMoves(mov);
-		MonteCarloNode MCNode = new MonteCarloNode(mov.size(), null, 1);
-		MCTree.add(MCNode);
-		for(int i = 0; i < mov.size(); i++){
-			MCTree.add(null);
-		}
-		ArrayList<Move> temp = new ArrayList<Move>();
-		int j = 1; 
-		for (Move m : mov) {
-			int a = randomHelper2(m);
-			state.applyMove(m);
-			state.getMoves(temp);
-			MonteCarloNode MCNode2 = new MonteCarloNode(temp.size(), m, MCTree.size(), a, MCTree.get(0));
-			MCTree.set(j, MCNode2);
-			for(int i = 0; i < temp.size(); i++){
+			totalSamples = 0;
+			MCTree.clear();
+			ArrayList<Move> mov = new ArrayList<Move>();
+			state.getMoves(mov);
+			MonteCarloNode MCNode = new MonteCarloNode(mov.size(), null, 1);
+			MCTree.add(MCNode);
+			for(int i = 0; i < mov.size(); i++){
 				MCTree.add(null);
 			}
-			state.undoMove(m);
-			j++;
-		}
-			bestMove = chooseNodeC(MCTree.get(0), timer2);
-			//System.err.println(totalSamples);
-			System.err.println(MCTree.size());
+			ArrayList<Move> temp = new ArrayList<Move>();
+			int j = 1; 
+			for (Move m : mov) {
+				int a = randomHelper2(m);
+				state.applyMove(m);
+				state.getMoves(temp);
+				MonteCarloNode MCNode2 = new MonteCarloNode(mov.size(), m, MCTree.size(), a, MCTree.get(0));
+				MCTree.set(j, MCNode2);
+				for(int i = 0; i < temp.size(); i++){
+					MCTree.add(null);
+				}
+				state.undoMove(m);
+				j++;
+			}
+			bestMove = chooseNodeC(MCTree.get(0), timer);
 			done = true;
 		}
 	
@@ -73,7 +68,6 @@ public class RootParallel extends Thread {
 	
 	public MonteCarloNode chooseNodeC(MonteCarloNode aNode, Alarm timer){
 		while(!timer.isDone()){
-			//System.err.println("We are getting here");
 			MonteCarloNode bestNode = MCTree.get(aNode.getStartLocation());
 			for(int i = aNode.getStartLocation(); i < aNode.getChildren() + aNode.getStartLocation() ; i++){
 				if(MCTree.get(i).getValue() > bestNode.getValue()){
@@ -90,7 +84,6 @@ public class RootParallel extends Thread {
 					chooseNodeB(bestNode, timer);
 					state.undoMove(bestNode.getMove2());
 				}
-				
 		}
 		return chooseMove();
 	}
@@ -114,14 +107,14 @@ public class RootParallel extends Thread {
 			int a = randomHelper2(m);
 			state.applyMove(m);
 			state.getMoves(temp);
-			MonteCarloNode MCNode2 = new MonteCarloNode(temp.size(), m, MCTree.size(), a, theNode);
+			MonteCarloNode MCNode2 = new MonteCarloNode(mov.size(), m, MCTree.size(), a, theParent);
 			MCTree.set(j, MCNode2);
 			MonteCarloNode atm = MCNode2.getParent();
 			while(atm != null){
 				atm.addValue(a);
 				atm = atm.getParent();
 			}
-			//theNode.setChildren(mov.size());
+			theNode.setChildren(mov.size());
 			for(int i = 0; i < temp.size() ; i++){
 				MCTree.add(null);
 			}
@@ -135,7 +128,7 @@ public class RootParallel extends Thread {
 		ChineseCheckersState s = new ChineseCheckersState(state);
 		s.applyMove(move);
 		ArrayList<Move> moves = new ArrayList<>();
-		for (int i = 0; i < 5; i++) {
+		for (int i = 0; i < 7; i++) {
 			if (s.gameOver()){
 				return s.eval() - (i * 2);
 			}
@@ -155,34 +148,4 @@ public class RootParallel extends Thread {
 		}
 		return s.eval();
 	}
-	
-	private int randomHelper(Move move) {
-		totalSamples++;
-		int me = state.getCurrentPlayer();
-		ChineseCheckersState s = new ChineseCheckersState(state);
-		s.applyMove(move);
-		ArrayList<Move> moves = new ArrayList<>();
-		while (!s.gameOver()) {
-			s.getMoves(moves);
-			if (Math.random() > 0.1) {
-				Move bestMove = moves.get(0);
-				for (Move m : moves) {
-					if (s.forwardDistance(m) > s.forwardDistance(bestMove)) {
-						bestMove = m;
-					}
-				}
-				s.applyMove(bestMove);
-			} else {
-				s.applyMove(moves.get((int) (Math.random() * moves.size())));
-			}
-		}
-		if (s.winner() == me) {
-			return 1;
-		}
-		else {
-			return 0;
-		}
-	}
 }
-
-
