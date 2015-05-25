@@ -23,6 +23,7 @@ public class MonteCarloNode {
 		numChildren = numChild;
 		theMove = aMove;
 		startLocation = location;
+		payoff = 0;
 		payoff += pay;
 		samples = 1;
 		parent = par;

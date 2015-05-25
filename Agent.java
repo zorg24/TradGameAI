@@ -136,7 +136,7 @@ public class Agent {
 	}
 
 	int turnNumber = 0;
-
+	public int cores = Runtime.getRuntime().availableProcessors();
 	private Move nextMove() {
 		// Somehow select your next move
 		// ArrayList<Move> moves = new ArrayList<Move>();
@@ -152,9 +152,9 @@ public class Agent {
 		Move m = new Move(0, 0);
 		Alarm timer = new Alarm(10);
 		timer.start();
-		int alpha = Integer.MIN_VALUE;
-		int beta = Integer.MAX_VALUE;
-		int d = 1;
+		//int alpha = Integer.MIN_VALUE;
+		//int beta = Integer.MAX_VALUE;
+		//int d = 1;
 		System.err.println(turnNumber);
 		if (turnNumber < 5) {
 			if (state.getCurrentPlayer() == 1) {
@@ -180,7 +180,62 @@ public class Agent {
 			// minimax(state, d, state.getCurrentPlayer(), m, timer, alpha,
 			// beta);
 			//m = UCB1(timer);
-			m = setTree(timer);
+			//m = setTree(timer);
+		ArrayList<RootParallel> myRoots = new ArrayList<RootParallel>();
+		for(int i = 0; i < cores; i++){
+			RootParallel aRoot = new RootParallel(timer, new ChineseCheckersState(state));
+			//RootParallel aRoot = new RootParallel(timer, state);
+			//aRoot.run();
+			myRoots.add(aRoot);
+		}
+		
+		int doneInt = 0;
+		boolean notDone = true;
+		while(notDone){
+			doneInt = 0;
+			for(RootParallel r : myRoots){
+				if(r.done){
+					doneInt++;
+				}
+				if(doneInt >= cores){
+					notDone = false;
+				}
+			}
+		}
+		int start = 0;
+		MonteCarloNode bestMove = myRoots.get(0).getMove();
+		ArrayList<MonteCarloNode> tempTree = new ArrayList<MonteCarloNode>();
+		for(RootParallel r : myRoots){
+			if(start == 0){
+				for(int i = r.MCTree.get(0).getStartLocation(); i < r.MCTree.get(0).getChildren() + r.MCTree.get(0).getStartLocation(); i++){
+					System.err.println("This size is " + r.MCTree.size());
+					tempTree.add(r.MCTree.get(i));
+					start ++ ;
+				}
+			}
+			else{
+				for(int i = 0; i < r.MCTree.get(0).getChildren(); i++){
+					tempTree.get(i).payoff += r.MCTree.get(i).payoff;
+					tempTree.get(i).samples += r.MCTree.get(i).samples;
+				}
+			}
+			
+			
+			//System.err.println(r.getMove().getAvgValue());
+			//System.err.println(r.getMove().numSamples());
+			//if(r.getMove().getAvgValue() > bestMove.getAvgValue()){
+			//if(r.getMove().numSamples() > bestMove.numSamples()){
+				//bestMove = r.getMove();
+			//}
+		}
+		
+		for(int i = 0 ; i < tempTree.size(); i++){
+			if(tempTree.get(i).getAvgValue() > bestMove.getAvgValue()){
+				bestMove = tempTree.get(i);
+			}
+		}
+		
+		m = bestMove.getMove2();
 		//}
 		//System.err.println("The depth is " + d);
 		state.turnNumber++;
@@ -397,7 +452,7 @@ public class Agent {
 		numTimes++ ;
 		for (int i = 0; i < 5; i++) {
 			if (s.gameOver()){
-				return s.eval();
+				return s.eval() - (i * 2);
 			}
 			s.getMoves(moves);
 			if(moves.isEmpty()){
@@ -504,53 +559,20 @@ public class Agent {
 			int a = randomHelper2(m);
 			state.applyMove(m);
 			state.getMoves(temp);
-			MonteCarloNode MCNode2 = new MonteCarloNode(temp.size(), m, MCTree.size(), a, theParent);
+			MonteCarloNode MCNode2 = new MonteCarloNode(temp.size(), m, MCTree.size(), a, theNode);
 			MCTree.set(j, MCNode2);
 			MonteCarloNode atm = MCNode2.getParent();
 			while(atm != null){
 				atm.addValue(a);
 				atm = atm.getParent();
 			}
-			theNode.setChildren(mov.size());
+			//theNode.setChildren(mov.size());
 			for(int i = 0; i < temp.size() ; i++){
 				MCTree.add(null);
 			}
 			state.undoMove(m);
 			j++;
 		}
-	}
-	
-	private Move UCB1Tree(Alarm timer, ArrayList<MonteCarloNode> theTree) {
-		ArrayList<MoveHolder> movHold = new ArrayList<MoveHolder>();
-		ArrayList<Move> mov = new ArrayList<Move>();
-		state.getMoves(mov);
-		theTree.add(mov.size(), null);
-		
-		for (Move m : mov) {
-			int a = randomHelper2(m);
-			double b = (a + Math.sqrt((2 * Math.log(totalSamples) / 1)));
-			//movHold.add(new MoveHolder(m, b, a));
-		}
-		while(!timer.isDone()){
-			MoveHolder movHolderA = movHold.get(0);
-			for(MoveHolder movH : movHold){
-				if(movH.getScore() > movHolderA.getScore()){
-					movHolderA = movH;
-				}
-			}
-			int a = randomHelper2(movHolderA.getMove());
-			movHolderA.addScore(a);
-			movHolderA.computeScore();
-		}
-		
-		MoveHolder movHolderA = movHold.get(0);
-		for (MoveHolder movH : movHold) {
-			if (movH.getAverageScore() > movHolderA.getAverageScore()) {
-				movHolderA = movH;
-			}
-		}
-
-		return movHolderA.getMove();
 	}
 
 	// private int forwardDistance(int from, int to) {

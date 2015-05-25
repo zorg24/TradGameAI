@@ -12,7 +12,8 @@ public class ChineseCheckersState {
 
     public ChineseCheckersState(ChineseCheckersState copyMe) {
         board = Arrays.copyOf(copyMe.board, copyMe.board.length);
-        randomize();
+        currentPlayer = copyMe.getCurrentPlayer();
+        //randomize();
     }
 
     public int blah = 0;
