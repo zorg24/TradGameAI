@@ -183,9 +183,9 @@ public class Agent {
 			//m = setTree(timer);
 		ArrayList<RootParallel> myRoots = new ArrayList<RootParallel>();
 		for(int i = 0; i < cores; i++){
-			RootParallel aRoot = new RootParallel(timer, new ChineseCheckersState(state));
-			//RootParallel aRoot = new RootParallel(timer, state);
-			//aRoot.run();
+			//RootParallel aRoot = new RootParallel(timer, new ChineseCheckersState(state));
+			RootParallel aRoot = new RootParallel(timer, state);
+			aRoot.run();
 			myRoots.add(aRoot);
 		}
 		
