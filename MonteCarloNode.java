@@ -9,7 +9,7 @@ public class MonteCarloNode {
 	public MonteCarloNode parent = null;
 	public Move theMove;
 
-	
+
 	public MonteCarloNode(int numChild, Move aMove, int location){
 		numChildren = numChild;
 		theMove = aMove;
@@ -17,8 +17,8 @@ public class MonteCarloNode {
 		payoff = 0;
 		samples = 0;
 	}
-	
-	
+
+
 	public MonteCarloNode(int numChild, Move aMove, int location, int pay, MonteCarloNode par){
 		numChildren = numChild;
 		theMove = aMove;

@@ -139,23 +139,12 @@ public class Agent {
 	public int cores = Runtime.getRuntime().availableProcessors();
 	private Move nextMove() {
 		 myPlayer = state.getCurrentPlayer();
-		// Somehow select your next move
-		// ArrayList<Move> moves = new ArrayList<Move>();
-		// state.getMoves(moves);
-		// Move bestMove = moves.get(0);
-		// for (Move m : moves) {
-		// if (forwardDistance(m.from, m.to) > forwardDistance(bestMove.from,
-		// bestMove.to))
-		// bestMove = m;
-		// }
-		// return bestMove;
+
 		nodeVisited = 0;
 		Move m = new Move(0, 0);
 		Alarm timer = new Alarm(10);
 		timer.start();
-		//int alpha = Integer.MIN_VALUE;
-		//int beta = Integer.MAX_VALUE;
-		//int d = 1;
+
 		System.err.println(turnNumber);
 		if (turnNumber < 5) {
 			if (state.getCurrentPlayer() == 1) {
@@ -175,184 +164,15 @@ public class Agent {
 				}
 			}
 		}
-		//for (; !timer.isDone(); d++) {
-			tt.clear();
 			numTimes = 0 ;
-			// minimax(state, d, state.getCurrentPlayer(), m, timer, alpha,
-			// beta);
-			//m = UCB1(timer);
 			m = setTree(timer);
-/*		ArrayList<RootParallel> myRoots = new ArrayList<RootParallel>();
-		for(int i = 0; i < cores; i++){
-			RootParallel aRoot = new RootParallel(timer, state);
-			aRoot.run();
-			myRoots.add(aRoot);
-		}
-		int doneInt = 0;
-		boolean notDone = true;
-		while(notDone){
-			doneInt = 0;
-			for(RootParallel r : myRoots){
-				if(r.done){
-					doneInt++;
-				}
-				if(doneInt >= cores){
-					notDone = false;
-				}
-			}
-		}
-		MonteCarloNode bestMove = myRoots.get(0).getMove();
-		for(RootParallel r : myRoots){
-			if(r.getMove().getAvgValue() > bestMove.getAvgValue()){
-				bestMove = r.getMove();
-			}
-		}
-		m = bestMove.getMove2();*/
-		//}
-		//System.err.println("The depth is " + d);
+
 		state.turnNumber++;
-		//System.err.println("The number of nodes visited is : " + nodeVisited);
-		System.err.println("The number of sims done is " + totalSamples);
+
 		return m;
 	}
-	
+
 	private int numTimes = 0;
-
-	private int minimax(ChineseCheckersState state, int depth, int playerNum,
-			Move best_move, Alarm timer, int alpha, int beta) {
-		if (state.getCurrentPlayer() == playerNum) {
-			return max2(state, depth, best_move, timer, alpha, beta);
-		} else {
-			return min2(state, depth, best_move, timer, alpha, beta);
-		}
-	}
-
-	private int max2(ChineseCheckersState state, int depth, Move best_move,
-			Alarm timer, int alpha, int beta) {
-		nodeVisited++;
-		long hash = state.getHash();
-		int best = Integer.MIN_VALUE;
-		int v = Integer.MIN_VALUE;
-		TTEntry ttEntry = tt.get(hash);
-		if (ttEntry != null && ttEntry.getDepth() >= depth) {
-
-			if (ttEntry.getBound() == 0) {
-				return ttEntry.getScore();
-			}
-
-			if (ttEntry.getBound() == 1 && alpha < ttEntry.getScore()) {
-				alpha = ttEntry.getScore();
-			}
-
-			if (ttEntry.getBound() == 2 && beta > ttEntry.getScore()) {
-				beta = ttEntry.getScore();
-			}
-		}
-
-		if (depth == 0 || state.gameOver() || timer.isDone()) {
-			// return state.eval();
-			v = state.eval();
-			if (v <= alpha) {
-				tt.put(hash, new TTEntry(alpha, beta, depth, v, 1));
-			} else if (v >= beta) {
-				tt.put(hash, new TTEntry(alpha, beta, depth, v, 2));
-			} else {
-				tt.put(hash, new TTEntry(alpha, beta, depth, v, 0));
-			}
-			return v;
-
-		}
-		ArrayList<Move> mov = new ArrayList<Move>();
-		state.getMoves(mov);
-		for (Move m : mov) {
-			state.applyMove(m);
-			v = Math.max(v,
-					min2(state, depth - 1, junkMove, timer, alpha, beta));
-			state.undoMove(m);
-			if (v > best) {
-				best_move.set(m);
-				best = v;
-			}
-			if (best > alpha) {
-				alpha = best;
-			}
-			if (alpha >= beta) {
-				break;
-			}
-		}
-		if (best <= alpha) {
-			tt.put(hash, new TTEntry(alpha, beta, depth, v, 1));
-		}
-		if (best >= beta) {
-			tt.put(hash, new TTEntry(alpha, beta, depth, v, 2));
-		} else {
-			tt.put(hash, new TTEntry(alpha, beta, depth, v, 0));
-		}
-		return best;
-	}
-
-	private int min2(ChineseCheckersState state, int depth, Move best_move,
-			Alarm timer, int alpha, int beta) {
-		nodeVisited++;
-		long hash = state.getHash();
-		int best = Integer.MAX_VALUE;
-		int v = Integer.MAX_VALUE;
-		TTEntry ttEntry = tt.get(hash);
-		if (ttEntry != null && ttEntry.getDepth() >= depth) {
-
-			if (ttEntry.getBound() == 0) {
-				return ttEntry.getScore();
-			}
-
-			if (ttEntry.getBound() == 1 && alpha < ttEntry.getScore()) {
-				alpha = ttEntry.getScore();
-			}
-
-			if (ttEntry.getBound() == 2 && beta > ttEntry.getScore()) {
-				beta = ttEntry.getScore();
-			}
-		}
-
-		if (depth == 0 || state.gameOver() || timer.isDone()) {
-			// return state.eval();
-			v = state.eval();
-			if (v <= alpha) {
-				tt.put(hash, new TTEntry(alpha, beta, depth, v, 1));
-			} else if (v >= beta) {
-				tt.put(hash, new TTEntry(alpha, beta, depth, v, 2));
-			} else {
-				tt.put(hash, new TTEntry(alpha, beta, depth, v, 0));
-			}
-			return v;
-
-		}
-		ArrayList<Move> mov = new ArrayList<Move>();
-		state.getMoves(mov);
-		for (Move m : mov) {
-			state.applyMove(m);
-			v = Math.min(v,
-					max2(state, depth - 1, junkMove, timer, alpha, beta));
-			state.undoMove(m);
-			if (v > best) {
-				best = v;
-			}
-			if (best < beta) {
-				beta = best;
-			}
-			if (alpha >= beta) {
-				break;
-			}
-		}
-		if (best <= alpha) {
-			tt.put(hash, new TTEntry(alpha, beta, depth, v, 1));
-		}
-		if (best >= beta) {
-			tt.put(hash, new TTEntry(alpha, beta, depth, v, 2));
-		} else {
-			tt.put(hash, new TTEntry(alpha, beta, depth, v, 0));
-		}
-		return best;
-	}
 
 	public static int totalSamples;
 
@@ -477,6 +297,7 @@ public class Agent {
 		}
 		return chooseNodeC(MCTree.get(0), timer);
 	}
+
 	
 	public void chooseNodeB(MonteCarloNode aNode, Alarm timer){
 		MonteCarloNode bestNode = MCTree.get(aNode.getStartLocation());
@@ -555,17 +376,6 @@ public class Agent {
 			j++;
 		}
 	}
-
-	// private int forwardDistance(int from, int to) {
-	// int fromRow = from / 9;
-	// int toRow = to / 9;
-	// int fromCol = from % 9;
-	// int toCol = to % 9;
-	// int mult = 1;
-	// if (state.getCurrentPlayer() == 2)
-	// mult = -1;
-	// return ((toRow + toCol) - (fromRow + fromCol))*mult;
-	// }
 
 	// Sends a msg to stdout and verifies that the next message to come in is it
 	// echoed back. This is how the server validates moves
@@ -677,8 +487,7 @@ public class Agent {
 		return tokens.length == 5 && tokens[0].equals("MOVE")
 				&& tokens[1].equals("FROM") && tokens[3].equals("TO");
 	}
-
-	private TranspositionTable tt = new TranspositionTable();
+	
 	private ChineseCheckersState state = new ChineseCheckersState();
 
 	private enum Players {

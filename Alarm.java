@@ -16,7 +16,7 @@ public class Alarm extends Thread {
     @Override
     public void run() {
         try {
-            sleep(sleepFor * 1000);
+            sleep(sleepFor * 1000 - 300);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

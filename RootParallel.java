@@ -30,7 +30,7 @@ public class RootParallel extends Thread {
 				MCTree.add(null);
 			}
 			ArrayList<Move> temp = new ArrayList<Move>();
-			int j = 1; 
+			int j = 1;
 			for (Move m : mov) {
 				int a = randomHelper2(m);
 				state.applyMove(m);
@@ -46,7 +46,7 @@ public class RootParallel extends Thread {
 			bestMove = chooseNodeC(MCTree.get(0), timer);
 			done = true;
 		}
-	
+
 	public void chooseNodeB(MonteCarloNode aNode, Alarm timer){
 		MonteCarloNode bestNode = MCTree.get(aNode.getStartLocation());
 		for(int i = aNode.getStartLocation(); i < aNode.getChildren() + aNode.getStartLocation() ; i++){
@@ -65,7 +65,7 @@ public class RootParallel extends Thread {
 				state.undoMove(bestNode.getMove2());
 			}
 	}
-	
+
 	public MonteCarloNode chooseNodeC(MonteCarloNode aNode, Alarm timer){
 		while(!timer.isDone()){
 			MonteCarloNode bestNode = MCTree.get(aNode.getStartLocation());
@@ -87,7 +87,7 @@ public class RootParallel extends Thread {
 		}
 		return chooseMove();
 	}
-	
+
 	public MonteCarloNode chooseMove(){
 		MonteCarloNode bestNode = MCTree.get(MCTree.get(0).getStartLocation());
 		for(int i = MCTree.get(0).getStartLocation(); i < MCTree.get(0).getChildren() + MCTree.get(0).getStartLocation() ; i++){
@@ -97,7 +97,7 @@ public class RootParallel extends Thread {
 		}
 		return bestNode;
 	}
-	
+
 	public void expand(MonteCarloNode theNode, MonteCarloNode theParent){
 		ArrayList<Move> mov = new ArrayList<Move>();
 		state.getMoves(mov);
