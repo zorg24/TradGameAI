@@ -487,7 +487,7 @@ public class Agent {
 		return tokens.length == 5 && tokens[0].equals("MOVE")
 				&& tokens[1].equals("FROM") && tokens[3].equals("TO");
 	}
-	
+
 	private ChineseCheckersState state = new ChineseCheckersState();
 
 	private enum Players {
